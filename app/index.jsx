@@ -27,6 +27,7 @@ const index = () => {
 
         <CardItem title="Restaurant" description="Description of the restaurant" />
 
+        <CardItem title="Restaurant" description="Description of the restaurant" />
         <TypeTable />
 
         <SearchBar  value = {''}
