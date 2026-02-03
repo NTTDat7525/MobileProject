@@ -38,6 +38,12 @@ const userSchema = new mongoose.Schema({
             type: String,
             trim: true,
             sparse: true//cho phép null và unique
+        },
+
+        role: {
+            type: String,
+            enum: ['user', 'admin'],//chỉ được phép là user hoặc admin
+            default: 'user'
         }
     }, 
 
