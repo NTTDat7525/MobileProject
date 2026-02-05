@@ -3,13 +3,14 @@ import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import Session from '../models/Sesstion.js';
+import { userInfo } from 'os';
 
 const ACCESS_TOKEN_TTL = '30m'; //thời gian hết hạn của access token (thường 15 đổ lại)
 const REFRESH_TOKEN_TTL = 14 * 24 * 60 * 60 * 1000 //14 ngày tính theo milliseconds
 
 export const signUp = async (req, res) => {
     try {
-        const{username, password, email, firstName, lastName} = req.body;//lấy thông tin từ request body
+        const{username, password, email, firstName, lastName, role} = req.body;//lấy thông tin từ request body
 
         if(!username || !password || !email || !firstName || !lastName){
             return res.status(400).json({message: "All fields are required"});
@@ -29,7 +30,8 @@ export const signUp = async (req, res) => {
             username,
             hashPassword,
             email,
-            displayName: firstName + " " + lastName
+            displayName: firstName + " " + lastName,
+            role: role && ["user", "admin"].includes(role)?role:"user"
         });
 
         return res.sendStatus(201);//tạo thành công
@@ -82,7 +84,7 @@ export const signIn = async (req, res) => {
         });
 
         //trả access token về cho client qua response body
-        return res.status(200).json({message: `User ${user.displayName} signed in successfully`, accessToken});
+        return res.status(200).json({message: `User ${user.displayName} signed in successfully`, accessToken, user: user.toObject()});
 
     } catch (error) {
         console.error("Error in signIn:", error);
