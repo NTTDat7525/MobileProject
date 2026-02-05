@@ -12,6 +12,7 @@ import {
   SafeAreaViewBase
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 export default function Signin() {
     return (
@@ -54,7 +55,12 @@ export default function Signin() {
 
             <Text style={styles.signupText}>
                 Don't have an account?{' '}
-                <Text style={styles.signupLink}>Sign Up.</Text>
+                <Text 
+                    style={styles.signupLink}
+                    onPress={() => router.push('/screens/Signup')}
+                >
+                    Sign Up.
+                </Text>
             </Text>
         </View>
     )

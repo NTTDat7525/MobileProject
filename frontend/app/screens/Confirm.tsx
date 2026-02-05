@@ -1,5 +1,6 @@
 import React from 'react';
 import { ThemedView } from '@/components/themed-view';
+import { router, useRouter } from 'expo-router';
 import {
   StyleSheet,
   Text,
@@ -12,8 +13,11 @@ import {
   SafeAreaViewBase
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-
+const gotoConfirmed = () => {
+  router.push('/screens/Confirmed');
+}
 export default function Confirm() {
+  const router = useRouter();
   return(
     <View style={styles.container}>
           <StatusBar barStyle="dark-content" />
@@ -77,7 +81,8 @@ export default function Confirm() {
           <Text style={styles.rqLabel}>Special Request</Text>
           <TextInput style={styles.rqBox}></TextInput>
         </View>
-        <TouchableOpacity style={[styles.mainButton]}>
+        <TouchableOpacity style={[styles.mainButton]}
+          onPress={() => gotoConfirmed()}>
           <Text style={styles.mainButtonText}>CONFIRM</Text>
         </TouchableOpacity>
       </ScrollView>

@@ -1,23 +1,19 @@
 import React, { useState } from 'react';
-import { ThemedView } from '@/components/themed-view';
 import {
   StyleSheet,
   Text,
   View,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   StatusBar,
-  Dimensions,
-  SafeAreaViewBase
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
-export default function Upcoming() {
+export default function MyBookings() {
   const [activeTab, setActiveTab] = useState('upcoming');
 
-  const bookings = [
+  const upcomingBookings = [
     {
       id: 1,
       name: 'NAME RESTAURANT',
@@ -38,10 +34,66 @@ export default function Upcoming() {
     },
   ];
 
+  const pastBookings = [
+    {
+      id: 3,
+      name: 'NAME RESTAURANT',
+      type: 'Type',
+      date: 'Mon, May 16, 2026',
+      time: '7 PM',
+      guests: '2 Guests',
+      bookingID: '#TB-03XX-78XX',
+    },
+    {
+      id: 4,
+      name: 'NAME RESTAURANT',
+      type: 'Type',
+      date: 'Mon, May 16, 2026',
+      time: '7 PM',
+      guests: '2 Guests',
+      bookingID: '#TB-03XX-78XX',
+    },
+  ];
+
+  // Chọn danh sách booking dựa trên tab active
+  const bookings = activeTab === 'upcoming' ? upcomingBookings : pastBookings;
+
+  // Render button dựa trên loại tab
+  const renderActions = () => {
+    if (activeTab === 'upcoming') {
+      return (
+        <>
+          <TouchableOpacity 
+            style={styles.modifyBtn}
+            onPress={() => router.push('/screens/Booking')}
+          >
+            <Text style={styles.modifyText}>Edit</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.cancelBtn}>
+            <FontAwesome name="times" size={14} color="#fff" />
+            <Text style={styles.cancelText}> Cancel</Text>
+          </TouchableOpacity>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <TouchableOpacity style={styles.modifyBtn}>
+            <Text style={styles.modifyText}>Book Again</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.cancelBtn}>
+            <FontAwesome name="times" size={14} color="#fff" />
+            <Text style={styles.cancelText}> Delete</Text>
+          </TouchableOpacity>
+        </>
+      );
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content"/>
-      
+      <StatusBar barStyle="dark-content" />
+
       {/* --- FIXED HEADER --- */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>My Bookings</Text>
@@ -49,26 +101,36 @@ export default function Upcoming() {
 
       {/* --- TABS --- */}
       <View style={styles.tabsContainer}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.tab1, activeTab === 'upcoming' && styles.tabActive]}
           onPress={() => setActiveTab('upcoming')}
         >
-          <Text style={[styles.tabText, activeTab === 'upcoming' && styles.tabTextActive]}>
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 'upcoming' && styles.tabTextActive,
+            ]}
+          >
             Upcoming
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.tab2, activeTab === 'past' && styles.tabActive]}
           onPress={() => setActiveTab('past')}
         >
-          <Text style={[styles.tabText, activeTab === 'past' && styles.tabTextActive]}>
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 'past' && styles.tabTextActive,
+            ]}
+          >
             Past
           </Text>
         </TouchableOpacity>
       </View>
 
       {/* --- SCROLLABLE BOOKINGS LIST --- */}
-      <ScrollView 
+      <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
       >
@@ -95,14 +157,7 @@ export default function Upcoming() {
             </View>
 
             <View style={styles.cardBottom}>
-              <TouchableOpacity style={styles.modifyBtn}
-              onPress={() => router.push('/screens/Booking')}>
-                <Text style={styles.modifyText}>Edit</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.cancelBtn}>
-                <FontAwesome name="times" size={14} color="#fff" />
-                <Text style={styles.cancelText}> Cancel</Text>
-              </TouchableOpacity>
+              {renderActions()}
             </View>
 
             <Text style={styles.bookingID}>Booking ID: {booking.bookingID}</Text>
@@ -110,8 +165,9 @@ export default function Upcoming() {
         ))}
       </ScrollView>
     </View>
-  )
+  );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

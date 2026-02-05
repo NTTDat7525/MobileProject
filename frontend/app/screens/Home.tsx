@@ -9,6 +9,7 @@ import {
   ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState("Classic");
@@ -51,7 +52,10 @@ export default function Home() {
       </View>
 
       {/* Card */}
-      <View style={styles.card}>
+      <TouchableOpacity 
+        style={styles.card}
+        onPress={() => router.push("/screens/Detail")}
+      >
         <Image
           source={{
             uri: "https://images.unsplash.com/photo-1528605248644-14dd04022da1",
@@ -66,7 +70,7 @@ export default function Home() {
             linens, crystal glassware, and candlelight.
           </Text>
         </View>
-      </View>
+      </TouchableOpacity>
     </ScrollView>
   );
 }

@@ -1,4 +1,6 @@
 import React,{useState} from 'react';
+import { useRouter } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import { ThemedView } from '@/components/themed-view';
 import {
   StyleSheet,
@@ -8,12 +10,12 @@ import {
   TouchableOpacity,
   TextInput,
   StatusBar,
-  Dimensions,
-  SafeAreaViewBase
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 
 export default function Booking() {
+  const router = useRouter();
+  const navigation = useNavigation();
   const [guestCount, setGuestCount] = useState(0);
   const dates = [
     { id: 1, day: 'Mon', date: '01', month: 'Jan' },
@@ -23,17 +25,15 @@ export default function Booking() {
     { id: 5, day: 'Mon', date: '01', month: 'Jan' },
   ];
   const times = ['08:00 AM','10:00 AM', '12:00 PM', '02:00 PM', '04:00 PM', '06:00 PM'];
-
+  const gotoConfirm = () => {
+    router.push('/screens/Confirm');
+  }
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
       
       {/* --- HEADER --- */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
-          {/* Icon Back */}
-          <FontAwesome name="arrow-left" size={20} color="black" />
-        </TouchableOpacity>
         <View>
           <Text style={styles.headerTitle}>Book a Table</Text>
           <Text style={styles.headerSubtitle}>Name</Text>
@@ -125,7 +125,10 @@ export default function Booking() {
         </View>
 
         {/* --- BUTTON NEXT --- */}
-        <TouchableOpacity style={styles.nextButton}>
+        <TouchableOpacity 
+          style={styles.nextButton}
+          onPress={() => gotoConfirm()}
+        >
           <Text style={styles.nextButtonText}>Next</Text>
         </TouchableOpacity>
 

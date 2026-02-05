@@ -11,6 +11,7 @@ import {
   StatusBar 
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 export default function Detail() {
   return (
@@ -19,7 +20,10 @@ export default function Detail() {
         {/* Banner Image */}
         <View style={styles.bannerContainer}>
           <View style={styles.bannerPlaceholder} />
-          <TouchableOpacity style={styles.backButtonDetail}>
+          <TouchableOpacity 
+            style={styles.backButtonDetail}
+            onPress={() => router.back()}
+          >
             <FontAwesome name="arrow-left" size={20} color="#333" />
           </TouchableOpacity>
           {/* Card trắng đè lên ảnh */}
@@ -54,7 +58,7 @@ export default function Detail() {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.mainButton}>
+          <TouchableOpacity style={styles.mainButton} onPress={() => router.push('/screens/Booking')}>
             <Text style={styles.mainButtonText}>Book a Table</Text>
           </TouchableOpacity>
         </View>

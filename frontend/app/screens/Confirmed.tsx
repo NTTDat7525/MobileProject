@@ -12,6 +12,7 @@ import {
   SafeAreaViewBase
 } from 'react-native';
 import { FontAwesome, FontAwesome6 } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 export default function Confirmed() {
   return (
@@ -60,10 +61,10 @@ export default function Confirmed() {
           </View>
         </View>
       </View>
-      <TouchableOpacity style={styles.mainButton1}>
+      <TouchableOpacity style={styles.mainButton1} onPress={() => router.push('/(tabs)/booking')}>
         <Text style={styles.mainButtonText1}>View My Booking</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.mainButton2}>
+      <TouchableOpacity style={styles.mainButton2} onPress={() => router.replace('/(tabs)/home')}>
         <Text style={styles.mainButtonText2}>Back to Home</Text>
       </TouchableOpacity>
     </View>

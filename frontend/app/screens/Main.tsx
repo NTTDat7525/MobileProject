@@ -12,6 +12,7 @@ import {
   SafeAreaViewBase
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 export default function main() {
     return (
@@ -29,7 +30,7 @@ export default function main() {
                 <Text style={styles.textIntroduce}>or refined gatherings in a timeless setting.</Text>
               </View>
 
-              <TouchableOpacity style={styles.startButton}>
+              <TouchableOpacity style={styles.startButton} onPress={() => router.push('/screens/Signin')}>
                 <Text style={styles.startButtonText}>Get Started</Text>
               </TouchableOpacity>
             </View>

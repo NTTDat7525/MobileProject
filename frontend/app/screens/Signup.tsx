@@ -9,6 +9,7 @@ import {
   StatusBar,
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 export default function Signup() {
   return (
@@ -54,8 +55,7 @@ export default function Signup() {
           style={styles.input}
         />
       </View>
-
-
+      
       {/* --- BUTTON --- */}
       <TouchableOpacity style={styles.primaryButton}>
         <Text style={styles.primaryText}>Create Account</Text>
@@ -69,7 +69,12 @@ export default function Signup() {
 
       <Text style={styles.bottomText}>
         Already have an account?{' '}
-        <Text style={styles.linkText}>Sign In.</Text>
+        <Text 
+          style={styles.linkText}
+          onPress={() => router.push('/screens/Signin')}
+        >
+          Sign In.
+        </Text>
       </Text>
     </ScrollView>
   );

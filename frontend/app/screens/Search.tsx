@@ -16,9 +16,6 @@ export default function Search() {
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity >
-          <FontAwesome name="arrow-left" size={24} color="#000" />
-        </TouchableOpacity>
         <Text style={styles.headerTitle}>Type of Tables</Text>
       </View>
 
@@ -56,7 +53,7 @@ const styles = StyleSheet.create({
   },
 
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "700",
     marginLeft: 15,
   },
