@@ -7,6 +7,7 @@ import adminRoute from './routes/adminRoute.js';
 import cookieParser from 'cookie-parser';
 import { protectedRoute } from './middlewares/authMiddleware.js';
 import { authorizeRoles } from './middlewares/roleMiddleware.js';
+import paymentRoute from "./routes/paymentRoute.js"
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -21,6 +22,7 @@ app.use('/api/auth', authRoute);
 app.use(protectedRoute);
 app.use('/api/users', userRoute);
 app.use('/api/admin', authorizeRoles("admin"), adminRoute);
+app.use('/api/', paymentRoute)
 connectDB().then(() => {
     app.listen(PORT, () => {
         console.log('Server is running on port ' + PORT);

@@ -3,8 +3,12 @@ import Table from "../models/Table.js";
 import Booking from "../models/Booking.js";
 import Order from "../models/Order.js";
 import Food from "../models/Food.js";
+import { protectedRoute } from "../middlewares/authMiddleware.js";
+import { authorizeRoles } from "../middlewares/roleMiddleware.js";
 
 const route = express.Router();
+route.use(protectedRoute);
+route.use(authorizeRoles("admin"));
 
 //Xem doanh thu
 route.get("/revenue", async (req, res) => {

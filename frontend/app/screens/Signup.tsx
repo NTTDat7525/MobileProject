@@ -58,7 +58,7 @@ export default function Signup() {
       
       {/* --- BUTTON --- */}
       <TouchableOpacity style={styles.primaryButton}>
-        <Text style={styles.primaryText}>Create Account</Text>
+        <Text style={styles.primaryText}>Created Account</Text>
       </TouchableOpacity>
 
       <Text style={styles.orText}>or continue with</Text>
