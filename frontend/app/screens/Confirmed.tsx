@@ -13,6 +13,8 @@ import {
 } from 'react-native';
 import { FontAwesome, FontAwesome6 } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import BookingDetailRow from '@/components/ui/BookingDetailRow';
+import PrimaryButton from '@/components/ui/PrimaryButton';
 
 export default function Confirmed() {
   return (
@@ -31,42 +33,24 @@ export default function Confirmed() {
           <Text style={styles.bookIDValue}>#TB-03XX-78XX</Text>
         </View>
         <View style={styles.detailsContainer}>
-          <View style={[styles.detailItem, {marginLeft: 10}]}>
-            <FontAwesome style={{marginLeft: 5}} name="calendar" size={20} color="#666" />
-            <View>
-            <Text style={styles.subLabel}>Date</Text>
-            <Text style={styles.infoText}>Monday, May 15, 2026</Text>
-            </View>
-          </View>
-          <View style={[styles.detailItem, {marginLeft: 10}]}>
-            <FontAwesome style={{marginLeft: 5}} name="clock-o" size={20} color="#666" />
-            <View>
-            <Text style={styles.subLabel}>Time</Text>
-            <Text style={styles.infoText}>7:00 PM</Text>
-            </View>
-          </View>
-          <View style={[styles.detailItem, {marginLeft: 10}]}>
-            <FontAwesome style={{marginLeft: 5}} name="user" size={20} color="#666" />
-            <View>
-            <Text style={styles.subLabel}>Guest</Text>
-            <Text style={styles.infoText}>2 People</Text>
-            </View>
-          </View>
-          <View style={[styles.detailItem, {marginLeft: 10}]}>
-            <FontAwesome6 style={{marginLeft: 5}} name="location-dot" size={20} color="#666" />
-            <View>
-            <Text style={styles.subLabel}>Restaurant</Text>
-            <Text style={styles.infoText}>Name</Text>
-            </View>
-          </View>
+          <BookingDetailRow iconName="calendar" label="Date" value="Monday, May 15, 2026" style={{ borderWidth: 0 }} />
+          <BookingDetailRow iconName="clock-o" label="Time" value="7:00 PM" style={{ borderWidth: 0 }} />
+          <BookingDetailRow iconName="user" label="Guest" value="2 People" style={{ borderWidth: 0 }} />
+          <BookingDetailRow iconName="location-dot" iconFamily="FontAwesome6" label="Restaurant" value="Name" style={{ borderWidth: 0 }} />
         </View>
       </View>
-      <TouchableOpacity style={styles.mainButton1} onPress={() => router.push('/(tabs)/booking')}>
-        <Text style={styles.mainButtonText1}>View My Booking</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.mainButton2} onPress={() => router.replace('/(tabs)/home')}>
-        <Text style={styles.mainButtonText2}>Back to Home</Text>
-      </TouchableOpacity>
+      <PrimaryButton
+        title="View My Booking"
+        onPress={() => router.push('/(tabs)/booking')}
+        style={styles.mainButton1}
+        textStyle={styles.mainButtonText1}
+      />
+      <PrimaryButton
+        title="Back to Home"
+        onPress={() => router.replace('/(tabs)/home')}
+        style={styles.mainButton2}
+        textStyle={styles.mainButtonText2}
+      />
     </View>
   )
 }

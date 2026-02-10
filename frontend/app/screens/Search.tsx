@@ -8,6 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
+import SearchBox from "@/components/ui/SearchBox";
 
 export default function Search() {
   const data = ["Classic", "Modern", "Private"];
@@ -20,13 +21,7 @@ export default function Search() {
       </View>
 
       {/* Search */}
-      <View style={styles.searchBox}>
-        <FontAwesome name="search" size={20} color="#999" />
-        <TextInput
-          placeholder="Search"
-          style={styles.searchInput}
-        />
-      </View>
+      <SearchBox placeholder="Search" iconType="fontawesome" style={{ marginTop: 10, marginBottom: 25 }} />
 
       {/* List */}
       {data.map((item, index) => (

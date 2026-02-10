@@ -13,6 +13,9 @@ import {
   SafeAreaViewBase
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import BackButton from '@/components/ui/BackButton';
+import BookingDetailRow from '@/components/ui/BookingDetailRow';
+import PrimaryButton from '@/components/ui/PrimaryButton';
 const gotoConfirmed = () => {
   router.push('/screens/Confirmed');
 }
@@ -24,10 +27,7 @@ export default function Confirm() {
           
           {/* --- FIXED HEADER --- */}
           <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton}>
-              {/* Icon Back */}
-              <FontAwesome name="arrow-left" size={20} color="black" />
-            </TouchableOpacity>
+            <BackButton onPress={() => router.back()} />
             <View>
               <Text style={styles.headerTitle}>Confirm Booking</Text>
             </View>
@@ -48,27 +48,9 @@ export default function Confirm() {
 
         <Text style={styles.sectionLabel}>Booking Detail</Text>
         <View style={styles.detailRow}>
-          <View style={[styles.detailItem, {marginLeft: 10}]}>
-            <FontAwesome style={{marginLeft: 5}} name="calendar" size={20} color="#666" />
-            <View>
-            <Text style={styles.subLabel}>Date</Text>
-            <Text style={styles.infoText}>Monday, May 15, 2026</Text>
-            </View>
-          </View>
-          <View style={[styles.detailItem, {marginLeft: 10}]}>
-            <FontAwesome style={{marginLeft: 5}} name="clock-o" size={20} color="#666" />
-            <View>
-            <Text style={styles.subLabel}>Time</Text>
-            <Text style={styles.infoText}>7:00 PM</Text>
-            </View>
-          </View>
-          <View style={[styles.detailItem, {marginLeft: 10}]}>
-            <FontAwesome style={{marginLeft: 5}} name="user" size={20} color="#666" />
-            <View>
-            <Text style={styles.subLabel}>Guest</Text>
-            <Text style={styles.infoText}>2 People</Text>
-            </View>
-          </View>
+          <BookingDetailRow iconName="calendar" label="Date" value="Monday, May 15, 2026" />
+          <BookingDetailRow iconName="clock-o" label="Time" value="7:00 PM" />
+          <BookingDetailRow iconName="user" label="Guest" value="2 People" />
         </View>
         <Text style={styles.cusInfo}>Your Infomation</Text>
         <View style={styles.infoRow}>
@@ -81,10 +63,11 @@ export default function Confirm() {
           <Text style={styles.rqLabel}>Special Request</Text>
           <TextInput style={styles.rqBox}></TextInput>
         </View>
-        <TouchableOpacity style={[styles.mainButton]}
-          onPress={() => gotoConfirmed()}>
-          <Text style={styles.mainButtonText}>CONFIRM</Text>
-        </TouchableOpacity>
+        <PrimaryButton
+          title="CONFIRM"
+          onPress={() => gotoConfirmed()}
+          style={styles.mainButton}
+        />
       </ScrollView>
     </View>
   )

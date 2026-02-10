@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import PrimaryButton from '@/components/ui/PrimaryButton';
 
 export default function main() {
     return (
@@ -30,9 +31,12 @@ export default function main() {
                 <Text style={styles.textIntroduce}>or refined gatherings in a timeless setting.</Text>
               </View>
 
-              <TouchableOpacity style={styles.startButton} onPress={() => router.push('/screens/Signin')}>
-                <Text style={styles.startButtonText}>Get Started</Text>
-              </TouchableOpacity>
+              <PrimaryButton
+                title="Get Started"
+                onPress={() => router.push('/screens/Signin')}
+                style={styles.startButton}
+                textStyle={styles.startButtonText}
+              />
             </View>
         </View>
     )

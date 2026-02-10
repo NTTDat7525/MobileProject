@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import SearchBox from "@/components/ui/SearchBox";
 
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState("Classic");
@@ -19,13 +20,7 @@ export default function Home() {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Search */}
-      <View style={styles.searchBox}>
-        <Ionicons name="search-outline" size={20} color="#999" />
-        <TextInput
-          placeholder="Search"
-          style={styles.searchInput}
-        />
-      </View>
+      <SearchBox placeholder="Search" iconType="ionicons" />
 
       <Text style={styles.title}>CATEGORIES</Text>
 

@@ -14,6 +14,8 @@ import {
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { router,useRouter } from 'expo-router';
+import LogoutModal from '@/components/ui/LogoutModal';
+import ContactInfoCard from '@/components/ui/ContactInfoCard';
 const gotoLogin = () => {
   Alert.alert(
     'Log Out',
@@ -60,42 +62,13 @@ export default function Profile() {
         </View>
 
         {/* --- CONTACT INFO CARD --- */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Contact Information</Text>
-
-          {/* Email Row */}
-          <View style={styles.infoRow}>
-            <View style={styles.iconBox}>
-              <FontAwesome name="envelope-o" size={18} color="#333" />
-            </View>
-            <View>
-              <Text style={styles.label}>Email</Text>
-              <Text style={styles.value}>Monday, May 15, 2026</Text>
-            </View>
-          </View>
-
-          {/* Phone Row */}
-          <View style={styles.infoRow}>
-            <View style={styles.iconBox}>
-              <FontAwesome name="phone" size={20} color="#333" />
-            </View>
-            <View>
-              <Text style={styles.label}>Phone</Text>
-              <Text style={styles.value}>+84 9478XXXX</Text>
-            </View>
-          </View>
-
-          {/* Restaurant Row */}
-          <View style={[styles.infoRow, { borderBottomWidth: 0 }]}>
-            <View style={styles.iconBox}>
-              <FontAwesome name="map-marker" size={22} color="#333" />
-            </View>
-            <View>
-              <Text style={styles.label}>Restaurant</Text>
-              <Text style={styles.value}>Name</Text>
-            </View>
-          </View>
-        </View>
+        <ContactInfoCard
+          items={[
+            { iconName: 'envelope-o', iconSize: 18, label: 'Email', value: 'Monday, May 15, 2026' },
+            { iconName: 'phone', iconSize: 20, label: 'Phone', value: '+84 9478XXXX' },
+            { iconName: 'map-marker', iconSize: 22, label: 'Restaurant', value: 'Name' },
+          ]}
+        />
 
         {/* --- LOG OUT BUTTON --- */}
         <TouchableOpacity style={styles.logoutButton} onPress={() => setShowLogoutModal(true)}>
@@ -106,36 +79,11 @@ export default function Profile() {
       </View>
 
       {/* --- LOGOUT MODAL --- */}
-      <Modal
+      <LogoutModal
         visible={showLogoutModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowLogoutModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <FontAwesome name="sign-out" size={40} color="#FF9A9E" style={styles.modalIcon} />
-            <Text style={styles.modalTitle}>Log Out</Text>
-            <Text style={styles.modalMessage}>Are you sure you want to log out?</Text>
-            
-            <View style={styles.modalButtonContainer}>
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setShowLogoutModal(false)}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.logoutButtonModal]}
-                onPress={handleLogout}
-              >
-                <Text style={styles.logoutButtonText}>Log Out</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        onCancel={() => setShowLogoutModal(false)}
+        onLogout={handleLogout}
+      />
     </>
   );
 }

@@ -13,6 +13,8 @@ import {
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import BookingCard from '@/components/ui/BookingCard';
+import BookingTabs from '@/components/ui/BookingTabs';
 
 export default function Upcoming() {
   const [activeTab, setActiveTab] = useState('upcoming');
@@ -48,24 +50,10 @@ export default function Upcoming() {
       </View>
 
       {/* --- TABS --- */}
-      <View style={styles.tabsContainer}>
-        <TouchableOpacity 
-          style={[styles.tab1, activeTab === 'upcoming' && styles.tabActive]}
-          onPress={() => setActiveTab('upcoming')}
-        >
-          <Text style={[styles.tabText, activeTab === 'upcoming' && styles.tabTextActive]}>
-            Upcoming
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.tab2, activeTab === 'past' && styles.tabActive]}
-          onPress={() => setActiveTab('past')}
-        >
-          <Text style={[styles.tabText, activeTab === 'past' && styles.tabTextActive]}>
-            Past
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <BookingTabs
+        activeTab={activeTab}
+        onTabChange={(tab) => setActiveTab(tab)}
+      />
 
       {/* --- SCROLLABLE BOOKINGS LIST --- */}
       <ScrollView 
@@ -73,40 +61,13 @@ export default function Upcoming() {
         contentContainerStyle={styles.content}
       >
         {bookings.map((booking) => (
-          <View key={booking.id} style={styles.bookingCard}>
-            <View style={styles.cardTop}>
-              <View style={styles.restaurantImage} />
-              <View style={styles.cardInfo}>
-                <Text style={styles.resName}>{booking.name}</Text>
-                <Text style={styles.resType}>{booking.type}</Text>
-                <View style={styles.detailsRow}>
-                  <FontAwesome name="calendar" size={14} color="#666" />
-                  <Text style={styles.detailText}> {booking.date}</Text>
-                </View>
-                <View style={styles.detailsRow}>
-                  <FontAwesome name="clock-o" size={14} color="#666" />
-                  <Text style={styles.detailText}> {booking.time}</Text>
-                </View>
-                <View style={styles.detailsRow}>
-                  <FontAwesome name="user" size={14} color="#666" />
-                  <Text style={styles.detailText}> {booking.guests}</Text>
-                </View>
-              </View>
-            </View>
-
-            <View style={styles.cardBottom}>
-              <TouchableOpacity style={styles.modifyBtn}
-              onPress={() => router.push('/screens/Booking')}>
-                <Text style={styles.modifyText}>Edit</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.cancelBtn}>
-                <FontAwesome name="times" size={14} color="#fff" />
-                <Text style={styles.cancelText}> Cancel</Text>
-              </TouchableOpacity>
-            </View>
-
-            <Text style={styles.bookingID}>Booking ID: {booking.bookingID}</Text>
-          </View>
+          <BookingCard
+            key={booking.id}
+            booking={booking}
+            variant="upcoming"
+            onEdit={() => router.push('/screens/Booking')}
+            onCancel={() => {}}
+          />
         ))}
       </ScrollView>
     </View>

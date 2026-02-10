@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import BackButton from '@/components/ui/BackButton';
+import PrimaryButton from '@/components/ui/PrimaryButton';
 
 export default function Detail() {
   return (
@@ -20,12 +22,10 @@ export default function Detail() {
         {/* Banner Image */}
         <View style={styles.bannerContainer}>
           <View style={styles.bannerPlaceholder} />
-          <TouchableOpacity 
-            style={styles.backButtonDetail}
+          <BackButton
             onPress={() => router.back()}
-          >
-            <FontAwesome name="arrow-left" size={20} color="#333" />
-          </TouchableOpacity>
+            style={styles.backButtonDetail}
+          />
           {/* Card trắng đè lên ảnh */}
           <View style={styles.bannerOverlayCards}>
             <View style={styles.smallCard} />
@@ -58,9 +58,12 @@ export default function Detail() {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.mainButton} onPress={() => router.push('/screens/Booking')}>
-            <Text style={styles.mainButtonText}>Book a Table</Text>
-          </TouchableOpacity>
+          <PrimaryButton
+            title="Book a Table"
+            onPress={() => router.push('/screens/Booking')}
+            style={styles.mainButton}
+            textStyle={styles.mainButtonText}
+          />
         </View>
       </ScrollView>
     </View>

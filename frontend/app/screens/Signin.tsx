@@ -13,6 +13,9 @@ import {
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import InputField from '@/components/ui/InputField';
+import PrimaryButton from '@/components/ui/PrimaryButton';
+import GoogleSignInButton from '@/components/ui/GoogleSignInButton';
 
 export default function Signin() {
     return (
@@ -22,36 +25,30 @@ export default function Signin() {
             <Text style={styles.title}>Welcome Back</Text>
             <Text style={styles.subtitle}>Sign in to continue booking</Text>
 
-            <Text style={styles.label}>Username</Text>
-            <View style={styles.inputBox}>
-                <FontAwesome name="user" size={18} color="#999" />
-                <TextInput
-                placeholder="Enter your username"
-                style={styles.input}
-                />
-            </View>
+            <InputField
+              label="Username"
+              placeholder="Enter your username"
+              iconName="user"
+            />
 
-            <Text style={styles.label}>Password</Text>
-            <View style={styles.inputBox}>
-                <FontAwesome name="lock" size={18} color="#999" />
-                <TextInput
-                placeholder="Enter your password"
-                secureTextEntry
-                style={styles.input}
-                />
-            </View>
+            <InputField
+              label="Password"
+              placeholder="Enter your password"
+              iconName="lock"
+              secureTextEntry
+            />
 
-            <TouchableOpacity style={styles.continueButton}>
-                <Text style={styles.continueText}>Continue</Text>
-            </TouchableOpacity>
+            <PrimaryButton
+              title="Continue"
+              onPress={() => {}}
+              style={styles.continueButton}
+            />
 
             {/* --- OR --- */}
             <Text style={styles.orText}>or continue with</Text>
 
             {/* --- GOOGLE BUTTON --- */}
-            <TouchableOpacity style={styles.googleButton}>
-                <Text style={styles.googleText}>Sign in with Google</Text>
-            </TouchableOpacity>
+            <GoogleSignInButton />
 
             <Text style={styles.signupText}>
                 Don't have an account?{' '}

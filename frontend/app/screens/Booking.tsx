@@ -12,6 +12,11 @@ import {
   StatusBar,
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import DateCard from '@/components/ui/DateCard';
+import TimeButton from '@/components/ui/TimeButton';
+import GuestCounter from '@/components/ui/GuestCounter';
+import PrimaryButton from '@/components/ui/PrimaryButton';
+import BackButton from '@/components/ui/BackButton';
 
 export default function Booking() {
   const router = useRouter();
@@ -34,6 +39,7 @@ export default function Booking() {
       
       {/* --- HEADER --- */}
       <View style={styles.header}>
+        <BackButton onPress={() => navigation.goBack()} />
         <View>
           <Text style={styles.headerTitle}>Book a Table</Text>
           <Text style={styles.headerSubtitle}>Name</Text>
@@ -52,11 +58,7 @@ export default function Booking() {
           
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dateList}>
             {dates.map((item, index) => (
-              <TouchableOpacity key={index} style={styles.dateCard}>
-                <Text style={styles.dateDay}>{item.day}</Text>
-                <Text style={styles.dateNum}>{item.date}</Text>
-                <Text style={styles.dateMonth}>{item.month}</Text>
-              </TouchableOpacity>
+              <DateCard key={index} item={item} />
             ))}
           </ScrollView>
         </View>
@@ -71,9 +73,7 @@ export default function Booking() {
 
           <View style={styles.timeContainer}>
             {times.map((time, index) => (
-              <TouchableOpacity key={index} style={styles.timeButton}>
-                <Text style={styles.timeText}>{time}</Text>
-              </TouchableOpacity>
+              <TimeButton key={index} time={time} />
             ))}
           </View>
         </View>
@@ -86,30 +86,11 @@ export default function Booking() {
             <Text style={styles.sectionTitle}>Number of Guests</Text>
           </View>
 
-          <View style={styles.guestControlContainer}>
-            <TouchableOpacity 
-              style={styles.circleButton}
-              onPress={() => setGuestCount(Math.max(0, guestCount - 1))}
-            >
-              {/* Icon Minus */}
-              <FontAwesome name="minus" size={18} color="#333" />
-            </TouchableOpacity>
-
-            <View style={styles.guestInfo}>
-              <Text style={styles.guestNumber}>
-                 {guestCount < 10 ? `0${guestCount}` : guestCount}
-              </Text>
-              <Text style={styles.guestLabel}>Guests</Text>
-            </View>
-
-            <TouchableOpacity 
-              style={styles.circleButton}
-              onPress={() => setGuestCount(guestCount + 1)}
-            >
-              {/* Icon Plus */}
-              <FontAwesome name="plus" size={18} color="#333" />
-            </TouchableOpacity>
-          </View>
+          <GuestCounter
+            count={guestCount}
+            onDecrement={() => setGuestCount(Math.max(0, guestCount - 1))}
+            onIncrement={() => setGuestCount(guestCount + 1)}
+          />
         </View>
 
         {/* --- SECTION: SPECIAL REQUEST --- */}
@@ -125,12 +106,11 @@ export default function Booking() {
         </View>
 
         {/* --- BUTTON NEXT --- */}
-        <TouchableOpacity 
-          style={styles.nextButton}
+        <PrimaryButton
+          title="Next"
           onPress={() => gotoConfirm()}
-        >
-          <Text style={styles.nextButtonText}>Next</Text>
-        </TouchableOpacity>
+          style={styles.nextButton}
+        />
 
         <View style={{ height: 20 }} />
 
