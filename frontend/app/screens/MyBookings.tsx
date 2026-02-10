@@ -58,38 +58,6 @@ export default function MyBookings() {
   // Chọn danh sách booking dựa trên tab active
   const bookings = activeTab === 'upcoming' ? upcomingBookings : pastBookings;
 
-  // Render button dựa trên loại tab
-  const renderActions = () => {
-    if (activeTab === 'upcoming') {
-      return (
-        <>
-          <TouchableOpacity 
-            style={styles.modifyBtn}
-            onPress={() => router.push('/screens/Booking')}
-          >
-            <Text style={styles.modifyText}>Edit</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.cancelBtn}>
-            <FontAwesome name="times" size={14} color="#fff" />
-            <Text style={styles.cancelText}> Cancel</Text>
-          </TouchableOpacity>
-        </>
-      );
-    } else {
-      return (
-        <>
-          <TouchableOpacity style={styles.modifyBtn}>
-            <Text style={styles.modifyText}>Book Again</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.cancelBtn}>
-            <FontAwesome name="times" size={14} color="#fff" />
-            <Text style={styles.cancelText}> Delete</Text>
-          </TouchableOpacity>
-        </>
-      );
-    }
-  };
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -157,7 +125,30 @@ export default function MyBookings() {
             </View>
 
             <View style={styles.cardBottom}>
-              {renderActions()}
+              {activeTab === 'upcoming' ? (
+                <>
+                  <TouchableOpacity 
+                    style={styles.modifyBtn}
+                    onPress={() => router.push('/screens/Booking')}
+                  >
+                    <Text style={styles.modifyText}>Edit</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.cancelBtn}>
+                    <FontAwesome name="times" size={14} color="#fff" />
+                    <Text style={styles.cancelText}> Cancel</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <>
+                  <TouchableOpacity style={styles.modifyBtn}>
+                    <Text style={styles.modifyText}>Book Again</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.cancelBtn}>
+                    <FontAwesome name="times" size={14} color="#fff" />
+                    <Text style={styles.cancelText}> Delete</Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
 
             <Text style={styles.bookingID}>Booking ID: {booking.bookingID}</Text>

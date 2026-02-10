@@ -10,4 +10,4 @@ npm i --save @fortawesome/free-solid-svg-icons\
 npm i --save @fortawesome/free-regular-svg-icons\
 npm i --save @fortawesome/free-brands-svg-icons\
 \
-sửa cái past vs upcoming thành mybookings cho dễ chuyển tab bằng render
+sửa cái past vs upcoming thành mybookings cho dễ chuyển tab bằng render\
