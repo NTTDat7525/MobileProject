@@ -3,9 +3,7 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     }
   },
   "include": [
@@ -13,5 +11,5 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-, "test/signin.test.js"  ]
+, "test/signin.test.js", "app/screens/Booking.jsx", "components/ui/DateCard.jsx", "components/ui/TimeButton.jsx", "app/screens/Confirm.jsx", "app/screens/Confirmed.jsx", "app/screens/Create_qr.jsx", "app/screens/Detail.jsx", "app/screens/Home.jsx", "app/screens/Main.jsx", "app/screens/MyBookings.jsx", "app/screens/Past.jsx", "app/screens/Profile.jsx", "app/screens/Search.jsx", "app/screens/Signin.jsx", "app/screens/Signup.jsx", "app/screens/Upcoming.jsx", "components/ui/BackButton.jsx", "components/ui/BookingCard.jsx", "components/ui/BookingDetailRow.jsx", "components/ui/BookingTabs.jsx", "components/ui/ContactInfoCard.jsx", "components/ui/GoogleSignInButton.jsx", "components/ui/GuestCounter.jsx", "components/ui/InputField.jsx", "components/ui/LogoutModal.jsx", "components/ui/SearchBox.jsx", "components/SigninForm.jsx", "components/SignupForm.jsx", "app/(tabs)/booking.jsx", "app/(tabs)/home.jsx", "app/(tabs)/profile.jsx", "app/(tabs)/search.jsx"  ]
 }

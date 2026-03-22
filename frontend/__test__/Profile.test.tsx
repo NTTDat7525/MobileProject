@@ -60,6 +60,5 @@ describe('Profile Screen', () => {
     fireEvent.press(getByText('Log out'));
     expect(getByText('Are you sure you want to log out?')).toBeTruthy();
     fireEvent.press(getByText('Cancel'));
-    // Modal should be hidden
   });
 });

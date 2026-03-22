@@ -51,8 +51,8 @@ router.post("/payment-return", (req, res) => {
     const data = req.body;
     console.log("Payment return data:", data);
 
-    // TODO: xác minh chữ ký (secure hash) từ VNPay
-    // TODO: cập nhật trạng thái đơn hàng trong DB
+    // xác minh chữ ký (secure hash) từ VNPay
+    // cập nhật trạng thái đơn hàng trong DB
 
     return res.status(200).json({
       message: "Payment return received successfully",

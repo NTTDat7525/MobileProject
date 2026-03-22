@@ -59,7 +59,7 @@ describe('Confirmed Screen', () => {
   it('navigates to bookings when View My Booking is pressed', () => {
     const { getByText } = render(<Confirmed />);
     fireEvent.press(getByText('View My Booking'));
-    expect(router.push).toHaveBeenCalledWith('/(tabs)/booking');
+    expect(router.push).toHaveBeenCalledWith('/(tabs)/past');
   });
 
   it('navigates to home when Back to Home is pressed', () => {

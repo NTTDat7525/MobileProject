@@ -11,6 +11,7 @@ jest.mock('expo-router', () => ({
 }));
 
 describe('Signin Screen', () => {
+  
   it('renders title and subtitle correctly', () => {
     const { getByText } = render(<Signin />);
     expect(getByText('Welcome Back')).toBeTruthy();

@@ -1,6 +1,6 @@
 import React, { act } from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import MyBookings from '../app/screens/MyBookings'; // chỉnh lại đường dẫn nếu khác
+import MyBookings from '../app/screens/MyBookings';
 import { router } from 'expo-router';
 
 // Mock router để kiểm tra navigation

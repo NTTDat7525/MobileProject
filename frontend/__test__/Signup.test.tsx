@@ -11,12 +11,12 @@ jest.mock('expo-router', () => ({
 }));
 
 describe('Signup Screen', () => {
+
   it('renders title and subtitle correctly', () => {
     const { getByText } = render(<Signup />);
     expect(getByText('Create Account')).toBeTruthy();
     expect(
-      getByText('Sign up to start booking amazing restaurants')
-    ).toBeTruthy();
+      getByText('Sign up to start booking amazing restaurants')).toBeTruthy();
   });
 
   it('renders input fields for username, password, and confirm password', () => {
@@ -41,4 +41,5 @@ describe('Signup Screen', () => {
     fireEvent.press(getByText('Sign In.'));
     expect(router.push).toHaveBeenCalledWith('/screens/Signin');
   });
+  
 });

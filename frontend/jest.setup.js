@@ -22,3 +22,28 @@ jest.mock('expo-asset', () => ({
     })),
   },
 }));
+
+// jest.setup.js
+jest.mock('@expo/vector-icons', () => {
+  const React = require('react');
+  return {
+    Ionicons: (props) => <React.Fragment>{props.name}</React.Fragment>,
+    MaterialIcons: (props) => <React.Fragment>{props.name}</React.Fragment>,
+    // add whichever icon sets you use
+  };
+});
+
+module.exports = {
+  preset: 'react-native',
+  setupFilesAfterEnv: ['@testing-library/jest-native/extend-expect'],
+  transformIgnorePatterns: [
+    'node_modules/(?!react-native|expo-router|@react-native|@expo|expo)',
+  ],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/$1',
+  },
+};
+
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+);
