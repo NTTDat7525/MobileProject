@@ -8,12 +8,12 @@ export default function AdminLayout() {
         animationEnabled: true,
       }}
     >
-      <Stack.Screen name="index" />
-      <Stack.Screen name="tables" />
-      <Stack.Screen name="orders" />
-      <Stack.Screen name="foods" />
-      <Stack.Screen name="bookings" />
-      <Stack.Screen name="revenue" />
+      <Stack.Screen name="index" options={{headerShown : false}}/>
+      <Stack.Screen name="tables" options={{headerShown : false}}/>
+      <Stack.Screen name="orders" options={{headerShown : false}}/>
+      <Stack.Screen name="foods" options={{headerShown : false}}/>
+      <Stack.Screen name="bookings" options={{headerShown : false}}/>
+      <Stack.Screen name="revenue" options={{headerShown : false}}/>
     </Stack>
   );
 }

@@ -1,0 +1,138 @@
+Priority,Priority Name,API Name,Endpoint,Method,URL,Headers,Request Body,Expected Status,Test Case Description,Test Steps,Expected Result,Notes
+1,Authentication,Sign Up,/auth/signup,POST,http://localhost:5001/api/auth/signup,"Content-Type: application/json","{ ""username"": ""testuser001"", ""email"": ""testuser001@example.com"", ""password"": ""Password123!"", ""displayName"": ""Test User 001"" }",201,Create new user account,"1. Open Postman
+2. Set method to POST
+3. Enter URL
+4. Go to Body → raw → JSON
+5. Paste request body
+6. Click Send",success=true; data contains userId; role=user,Lưu userId để dùng sau
+1,Authentication,Sign Up - Duplicate Email,/auth/signup,POST,http://localhost:5001/api/auth/signup,"Content-Type: application/json","{ ""username"": ""testuser002"", ""email"": ""testuser001@example.com"", ""password"": ""Password123!"", ""displayName"": ""Test User 002"" }",400,Try sign up with existing email,"1. Use email that was already registered
+2. Send request",success=false; error message contains 'already exists',Should reject duplicate email
+1,Authentication,Sign Up - Missing Field,/auth/signup,POST,http://localhost:5001/api/auth/signup,"Content-Type: application/json","{ ""username"": ""testuser003"", ""password"": ""Password123!"" }",400,Try sign up without email,"1. Omit email field
+2. Send request",success=false; error message about missing email,Should validate required fields
+1,Authentication,Sign In,/auth/signin,POST,http://localhost:5001/api/auth/signin,"Content-Type: application/json","{ ""email"": ""testuser001@example.com"", ""password"": ""Password123!"" }",200,Login and get JWT token,"1. Set method to POST
+2. Enter correct credentials
+3. Click Send",success=true; data contains token and userId,⚠️ IMPORTANT: Copy token for next requests
+1,Authentication,Sign In - Wrong Password,/auth/signin,POST,http://localhost:5001/api/auth/signin,"Content-Type: application/json","{ ""email"": ""testuser001@example.com"", ""password"": ""WrongPassword123!"" }",400,Try login with wrong password,"1. Use correct email but wrong password
+2. Send request",success=false; error about invalid credentials,Should reject wrong credentials
+1,Authentication,Sign In - Non-existent Email,/auth/signin,POST,http://localhost:5001/api/auth/signin,"Content-Type: application/json","{ ""email"": ""nonexistent@example.com"", ""password"": ""Password123!"" }",404,Try login with non-existent email,"1. Use email that doesn't exist
+2. Send request",success=false; error about user not found,Should handle non-existent users
+1,Authentication,Sign Out,/auth/signout,POST,http://localhost:5001/api/auth/signout,"Authorization: Bearer {{token}}; Content-Type: application/json",,200,Logout user,"1. Add token to Authorization header
+2. Set method to POST
+3. Send request (no body)",success=true; message = 'Logout successful',Should invalidate session
+2,User Profile,Get Current User,/users/me,GET,http://localhost:5001/api/users/me,"Authorization: Bearer {{token}}; Content-Type: application/json",,200,Get authenticated user info,"1. Use valid token in header
+2. Send GET request",success=true; data contains userId; data.username matches Login,Confirm user identity
+2,User Profile,Get Current User - Invalid Token,/users/me,GET,http://localhost:5001/api/users/me,"Authorization: Bearer invalid_token; Content-Type: application/json",,401,Try with invalid token,"1. Use fake/invalid token
+2. Send request",success=false; error = 'Unauthorized',Should reject invalid tokens
+2,User Profile,Get Current User - No Token,/users/me,GET,http://localhost:5001/api/users/me,"Content-Type: application/json",,401,Try without token,"1. Don't include Authorization header
+2. Send request",success=false; error = 'Unauthorized',Should require authentication
+2,User Profile,Get User Profile,/users/profile/:userId,GET,http://localhost:5001/api/users/profile/{{userId}},"Authorization: Bearer {{token}}; Content-Type: application/json",,200,Get specific user profile,"1. Use userId from Sign In response
+2. Send GET request",success=true; data contains user details,Replace :userId with actual ID
+2,User Profile,Update User Profile,/users/profile,PUT,http://localhost:5001/api/users/profile,"Authorization: Bearer {{token}}; Content-Type: application/json","{ ""displayName"": ""Updated Name"", ""bio"": ""I love restaurants"", ""phone"": ""0912345678"" }",200,Update user profile info,"1. Set method to PUT
+2. Add token header
+3. Enter request body
+4. Send request",success=true; data.displayName updated; data.bio updated,Verify changes persist
+3,Tables & Bookings,Get All Tables,/users/tables,GET,http://localhost:5001/api/users/tables,,200,Get list of all tables,"1. Set method to GET
+2. No authentication needed
+3. Send request",success=true; data is array; contains table objects,No token needed - public endpoint
+3,Tables & Bookings,Get Tables with Filter,/users/tables,GET,http://localhost:5001/api/users/tables?status=available,,200,Get only available tables,"1. Add query parameter: ?status=available
+2. Send GET request",success=true; all tables have status='available',Verify filter works
+3,Tables & Bookings,Get Tables by Capacity,/users/tables,GET,http://localhost:5001/api/users/tables?capacity=4,,200,Get tables for 4+ people,"1. Add query parameter: ?capacity=4
+2. Send GET request",success=true; all returned tables have capacity>=4,Verify capacity filter
+3,Tables & Bookings,Get Table by ID,/users/tables/:tableId,GET,http://localhost:5001/api/users/tables/{{tableId}},,200,Get a specific table,"1. Use tableId from Get Tables response
+2. Send GET request",success=true; data contains table details,Replace :tableId with actual ID
+3,Tables & Bookings,Get Table by Invalid ID,/users/tables/:tableId,GET,http://localhost:5001/api/users/tables/invalid_id,,404,Try with invalid table ID,"1. Use non-existent ID
+2. Send request",success=false; error = 'Not found',Should handle invalid IDs
+3,Tables & Bookings,Create Booking,/users/bookings,POST,http://localhost:5001/api/users/bookings,"Authorization: Bearer {{token}}; Content-Type: application/json","{ ""tableId"": ""{{tableId}}"", ""guestName"": ""Test User"", ""guestEmail"": ""testuser001@example.com"", ""guestPhone"": ""0912345678"", ""numberOfGuests"": 2, ""bookingDate"": ""2024-02-20"", ""bookingTime"": ""19:00"", ""notes"": ""window seat"" }",201,Create booking for a table,"1. Add token header
+2. Set method to POST
+3. Replace tableId with actual ID
+4. Fill in booking details
+5. Send request",success=true; data.bookingId is returned; status='pending',⚠️ Save bookingId for next tests
+3,Tables & Bookings,Create Booking - Invalid Table,/users/bookings,POST,http://localhost:5001/api/users/bookings,"Authorization: Bearer {{token}}; Content-Type: application/json","{ ""tableId"": ""invalid_id"", ""guestName"": ""Test"", ""guestEmail"": ""test@example.com"", ""guestPhone"": ""0912345678"", ""numberOfGuests"": 2, ""bookingDate"": ""2024-02-20"", ""bookingTime"": ""19:00"" }",400,Try booking non-existent table,"1. Use invalid tableId
+2. Send request",success=false; error about table not found,Should validate table existence
+3,Tables & Bookings,Create Booking - Conflicting Date,/users/bookings,POST,http://localhost:5001/api/users/bookings,"Authorization: Bearer {{token}}; Content-Type: application/json","{ ""tableId"": ""{{tableId}}"", ""guestName"": ""Test"", ""guestEmail"": ""test@example.com"", ""guestPhone"": ""0912345678"", ""numberOfGuests"": 10, ""bookingDate"": ""2024-02-20"", ""bookingTime"": ""19:00"" }",400,Try booking too many guests for table,"1. numberOfGuests > table capacity
+2. Send request",success=false; error about capacity,Should validate guest count
+3,Tables & Bookings,Get User Bookings,/users/bookings,GET,http://localhost:5001/api/users/bookings,"Authorization: Bearer {{token}}; Content-Type: application/json",,200,Get all user's bookings,"1. Add token header
+2. Send GET request",success=true; data is array of user's bookings,Show all bookings for logged-in user
+3,Tables & Bookings,Get User Bookings - Filter,/users/bookings,GET,http://localhost:5001/api/users/bookings?status=pending,"Authorization: Bearer {{token}}; Content-Type: application/json",,200,Get only pending bookings,"1. Add query: ?status=pending
+2. Send request",success=true; all bookings have status='pending',Verify filter works
+3,Tables & Bookings,Get Booking by ID,/users/bookings/:bookingId,GET,http://localhost:5001/api/users/bookings/{{bookingId}},"Authorization: Bearer {{token}}; Content-Type: application/json",,200,Get specific booking details,"1. Use bookingId from Create Booking
+2. Send GET request",success=true; data contains booking details,Replace :bookingId with actual ID
+3,Tables & Bookings,Update Booking,/users/bookings/:bookingId,PUT,http://localhost:5001/api/users/bookings/{{bookingId}},"Authorization: Bearer {{token}}; Content-Type: application/json","{ ""bookingDate"": ""2024-02-21"", ""bookingTime"": ""20:00"", ""numberOfGuests"": 3, ""notes"": ""updated request"" }",200,Update pending booking,"1. Use pending bookingId
+2. Set method to PUT
+3. Update fields
+4. Send request",success=true; data shows updated values,Can only update pending bookings
+3,Tables & Bookings,Update Booking - Confirmed,/users/bookings/:bookingId,PUT,http://localhost:5001/api/users/bookings/{{bookingId}},"Authorization: Bearer {{token}}; Content-Type: application/json","{ ""bookingDate"": ""2024-02-22"", ""bookingTime"": ""21:00"" }",400,Try updating confirmed booking,"1. Use confirmed bookingId
+2. Try to update
+3. Send request",success=false; error about status,Should prevent updates on confirmed bookings
+3,Tables & Bookings,Cancel Booking,/users/bookings/:bookingId/cancel,PUT,http://localhost:5001/api/users/bookings/{{bookingId}}/cancel,"Authorization: Bearer {{token}}; Content-Type: application/json","{ ""cancellationReason"": ""Cannot attend"" }",200,Cancel a booking,"1. Use active bookingId
+2. Set method to PUT
+3. Add cancellation reason
+4. Send request",success=true; status='cancelled',Mark booking as cancelled
+4,Orders,Get User Orders,/users/orders,GET,http://localhost:5001/api/users/orders,"Authorization: Bearer {{token}}; Content-Type: application/json",,200,Get all user's orders,"1. Add token header
+2. Send GET request",success=true; data is array of orders,Show orders for logged-in user
+4,Orders,Get User Orders - Filter,/users/orders,GET,http://localhost:5001/api/users/orders?status=completed,"Authorization: Bearer {{token}}; Content-Type: application/json",,200,Get only completed orders,"1. Add query: ?status=completed
+2. Send request",success=true; all orders have status='completed',Verify filter works
+4,Orders,Get Order by ID,/users/orders/:orderId,GET,http://localhost:5001/api/users/orders/{{orderId}},"Authorization: Bearer {{token}}; Content-Type: application/json",,200,Get specific order details,"1. Use orderId from list
+2. Send GET request",success=true; data contains order items and total,Replace :orderId with actual ID
+4,Orders,Get Order - Invalid ID,/users/orders/:orderId,GET,http://localhost:5001/api/users/orders/invalid_id,"Authorization: Bearer {{token}}; Content-Type: application/json",,404,Try with invalid order ID,"1. Use non-existent ID
+2. Send request",success=false; error = 'Not found',Should handle invalid IDs
+5,Admin,Get Revenue,/admin/revenue,GET,http://localhost:5001/api/admin/revenue,"Authorization: Bearer {{adminToken}}; Content-Type: application/json",,200,Get total revenue,"1. Use admin token
+2. Send GET request",success=true; data contains totalRevenue and orderCount,Admin only - requires admin role
+5,Admin,Get Revenue with Date Range,/admin/revenue,GET,http://localhost:5001/api/admin/revenue?startDate=2024-01-01&endDate=2024-01-31,"Authorization: Bearer {{adminToken}}; Content-Type: application/json",,200,Get revenue for date range,"1. Add date query params
+2. Send request",success=true; data filtered by dates,Verify date filtering
+5,Admin,Get Order Statistics,/admin/orders/stats,GET,http://localhost:5001/api/admin/orders/stats,"Authorization: Bearer {{adminToken}}; Content-Type: application/json",,200,Get order stats,"1. Use admin token
+2. Send GET request",success=true; data contains totalOrders and stats,Show order statistics
+5,Admin,Get Table Status,/admin/tables/status,GET,http://localhost:5001/api/admin/tables/status,"Authorization: Bearer {{adminToken}}; Content-Type: application/json",,200,Get all table statuses,"1. Use admin token
+2. Send GET request",success=true; data is array with all tables,Show current table status
+5,Admin,Add Table,/admin/tables,POST,http://localhost:5001/api/admin/tables,"Authorization: Bearer {{adminToken}}; Content-Type: application/json","{ ""tableNumber"": ""C5"", ""capacity"": 6, ""type"": ""standard"", ""location"": ""indoor"" }",201,Create new table,"1. Use admin token
+2. Set method to POST
+3. Fill in table details
+4. Send request",success=true; data.tableId returned; status='available',Admin only
+5,Admin,Update Table,/admin/tables/:tableId,PUT,http://localhost:5001/api/admin/tables/{{tableId}},"Authorization: Bearer {{adminToken}}; Content-Type: application/json","{ ""capacity"": 8, ""type"": ""vip"" }",200,Update table info,"1. Use admin token
+2. Use existing tableId
+3. Update fields
+4. Send request",success=true; data shows updated values,Admin only
+5,Admin,Delete Table,/admin/tables/:tableId,DELETE,http://localhost:5001/api/admin/tables/{{tableId}},"Authorization: Bearer {{adminToken}}; Content-Type: application/json",,200,Delete a table,"1. Use admin token
+2. Set method to DELETE
+3. Use tableId
+4. Send request",success=true; table deleted,Admin only - use test table ID
+5,Admin,Create Food,/admin/foods,POST,http://localhost:5001/api/admin/foods,"Authorization: Bearer {{adminToken}}; Content-Type: application/json","{ ""name"": ""Cơm Tấm"", ""description"": ""Broken rice"", ""category"": ""main"", ""cuisine"": ""vietnamese"", ""price"": 50000 }",201,Create new food item,"1. Use admin token
+2. Set method to POST
+3. Fill food details
+4. Send request",success=true; data.foodId returned,Admin only
+5,Admin,Get Foods,/admin/foods,GET,http://localhost:5001/api/admin/foods,"Authorization: Bearer {{adminToken}}; Content-Type: application/json",,200,Get all food items,"1. Use admin token
+2. Send GET request",success=true; data is array of foods,Admin only
+5,Admin,Get Foods by Category,/admin/foods,GET,http://localhost:5001/api/admin/foods?category=main,"Authorization: Bearer {{adminToken}}; Content-Type: application/json",,200,Get main course items,"1. Add query: ?category=main
+2. Send request",success=true; all items have category='main',Verify category filter
+5,Admin,Update Food,/admin/foods/:foodId,PUT,http://localhost:5001/api/admin/foods/{{foodId}},"Authorization: Bearer {{adminToken}}; Content-Type: application/json","{ ""price"": 55000, ""description"": ""Updated description"" }",200,Update food info,"1. Use admin token
+2. Use existing foodId
+3. Update fields
+4. Send request",success=true; data shows updated values,Admin only
+5,Admin,Delete Food,/admin/foods/:foodId,DELETE,http://localhost:5001/api/admin/foods/{{foodId}},"Authorization: Bearer {{adminToken}}; Content-Type: application/json",,200,Delete food item,"1. Use admin token
+2. Set method to DELETE
+3. Send request",success=true; food deleted,Admin only
+5,Admin,Create Order (Admin),/admin/orders,POST,http://localhost:5001/api/admin/orders,"Authorization: Bearer {{adminToken}}; Content-Type: application/json","{ ""userId"": ""{{userId}}"", ""bookingId"": ""{{bookingId}}"", ""tableId"": ""{{tableId}}"", ""items"": [{ ""foodId"": ""{{foodId}}"", ""quantity"": 2 }] }",201,Create order from POS,"1. Use admin token
+2. Fill in user/booking/table/item IDs
+3. Send request",success=true; data.orderId returned; status='pending',Admin only - provide real IDs
+5,Admin,Update Order Status,/admin/orders/:orderId/status,PUT,http://localhost:5001/api/admin/orders/{{orderId}}/status,"Authorization: Bearer {{adminToken}}; Content-Type: application/json","{ ""status"": ""completed"" }",200,Change order status,"1. Use admin token
+2. Use valid orderId
+3. Set new status
+4. Send request",success=true; status updated,Admin only
+5,Admin,Add Item to Order,/admin/orders/:orderId/add-item,PUT,http://localhost:5001/api/admin/orders/{{orderId}}/add-item,"Authorization: Bearer {{adminToken}}; Content-Type: application/json","{ ""foodId"": ""{{foodId}}"", ""quantity"": 1 }",200,Add item to order,"1. Use admin token
+2. Use active orderId
+3. Specify food item
+4. Send request",success=true; totalAmount increased,Admin only
+5,Admin,Update Booking Status (Admin),/admin/bookings/:bookingId/status,PUT,http://localhost:5001/api/admin/bookings/{{bookingId}}/status,"Authorization: Bearer {{adminToken}}; Content-Type: application/json","{ ""status"": ""confirmed"" }",200,Confirm booking (admin),"1. Use admin token
+2. Use pending bookingId
+3. Change status
+4. Send request",success=true; status='confirmed',Admin can confirm bookings
+5,Admin,Cancel Booking (Admin),/admin/bookings/:bookingId/cancel,PUT,http://localhost:5001/api/admin/bookings/{{bookingId}}/cancel,"Authorization: Bearer {{adminToken}}; Content-Type: application/json","{ ""cancellationReason"": ""Restaurant cancellation"" }",200,Cancel booking (admin),"1. Use admin token
+2. Provide reason
+3. Send request",success=true; status='cancelled',Admin can cancel any booking
+6,Payment,Create Payment QR,/payment/create-qr,POST,http://localhost:5001/api/payment/create-qr,"Content-Type: application/json","{ ""amount"": 100000, ""orderInfo"": ""Payment for order"" }",201,Generate VNPay QR code,"1. Set method to POST
+2. Fill payment details
+3. Send request",success=true; contains paymentUrl or qrCode,For payment integration
+6,Payment,Invalid Payment Amount,/payment/create-qr,POST,http://localhost:5001/api/payment/create-qr,"Content-Type: application/json","{ ""amount"": -100000 }",400,Try with negative amount,"1. Use invalid amount
+2. Send request",success=false; error about invalid amount,Should validate amount
+6,Payment,Missing Payment Info,/payment/create-qr,POST,http://localhost:5001/api/payment/create-qr,"Content-Type: application/json",{ },400,Try without required fields,"1. Send empty body
+2. Send request",success=false; error about missing fields,Should validate required fields

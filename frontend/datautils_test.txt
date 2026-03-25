@@ -1,0 +1,110 @@
+
+> frontend@1.0.0 test
+> jest __test__/libs/dataUtils.test.js --passWithNoTests --no-coverage --watchAll=false
+
+FAIL __test__/libs/dataUtils.test.js
+  Data Utility Functions
+    getAvailableTables
+      √ should return all tables when no bookings exist (1 ms)
+      √ should exclude booked tables at requested time (1 ms)
+      √ should include table when booking time does not overlap
+      √ should handle null/undefined bookings gracefully
+      √ should return empty array for invalid tables (1 ms)
+    isTimeOverlapping
+      √ should return true when time falls within booking period
+      √ should return true when time equals start time
+      √ should return false when time is before booking
+      √ should return false when time is after or at booking end
+      √ should handle 24-hour format correctly
+      √ should return false for null/undefined inputs
+    isValidBookingTime
+      √ should return true for time within default hours (09:00 - 23:00)
+      √ should return false for time before opening
+      √ should return false for time at or after closing
+      √ should respect custom opening/closing hours
+      √ should return false for null time
+    isValidBookingDate
+      × should return true for today (2 ms)
+      √ should return true for future dates
+      √ should return false for past dates
+      √ should return false for null/undefined date
+    formatDateForDisplay
+      √ should format date correctly (9 ms)
+      √ should handle Date objects
+      √ should return empty string for null/undefined
+    formatTimeForDisplay
+      √ should convert 24-hour to 12-hour AM format
+      √ should convert 24-hour to 12-hour PM format
+      √ should handle midnight correctly (1 ms)
+      × should pad minutes with leading zero (1 ms)
+      √ should return empty string for null/undefined
+    calculateBookingDuration
+      √ should calculate correct duration in hours
+      √ should return 0 for null/undefined times (1 ms)
+    countAvailableTableCapacity
+      √ should count tables with sufficient capacity
+      √ should return 0 for invalid capacity
+      √ should return 0 for null/undefined tables
+    isValidGuestCount
+      √ should return true for valid guest count (default range 1-20)
+      √ should return false for out-of-range guest count
+      √ should respect custom min/max range
+      √ should handle string numbers (1 ms)
+      √ should return false for non-numeric values
+    formatCurrency
+      √ should format currency with thousand separators
+      √ should support custom currency code
+      √ should return empty string for invalid input
+    calculateDeposit
+      √ should calculate 20% deposit correctly
+      √ should round up to nearest integer
+      √ should return 0 for invalid amounts (1 ms)
+    groupBookingsByStatus
+      √ should group bookings by status correctly
+      √ should handle bookings without status field
+      √ should return empty object for null/undefined bookings
+    canCancelBooking
+      √ should allow cancellation for future bookings with non-cancelled status
+      √ should not allow cancellation for past bookings
+      √ should not allow cancellation for already cancelled bookings
+      √ should return false for null booking
+
+  ● Data Utility Functions › isValidBookingDate › should return true for today
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    [0m [90m 127 |[39m     test([32m'should return true for today'[39m[33m,[39m () [33m=>[39m {
+     [90m 128 |[39m       [36mconst[39m today [33m=[39m [36mnew[39m [33mDate[39m()[33m.[39mtoISOString()[33m.[39msplit([32m'T'[39m)[[35m0[39m][33m;[39m
+    [31m[1m>[22m[39m[90m 129 |[39m       expect(isValidBookingDate(today))[33m.[39mtoBe([36mtrue[39m)[33m;[39m
+     [90m     |[39m                                         [31m[1m^[22m[39m
+     [90m 130 |[39m     })[33m;[39m
+     [90m 131 |[39m
+     [90m 132 |[39m     test([32m'should return true for future dates'[39m[33m,[39m () [33m=>[39m {[0m
+
+      at Object.toBe (__test__/libs/dataUtils.test.js:129:41)
+
+  ● Data Utility Functions › formatTimeForDisplay › should pad minutes with leading zero
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "2:5 PM"
+    Received: "2:05 PM"
+
+    [0m [90m 189 |[39m     test([32m'should pad minutes with leading zero'[39m[33m,[39m () [33m=>[39m {
+     [90m 190 |[39m       expect(formatTimeForDisplay([32m'14:05'[39m))[33m.[39mtoBe([32m'2:05 PM'[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 191 |[39m       expect(formatTimeForDisplay([32m'14:5'[39m))[33m.[39mtoBe([32m'2:5 PM'[39m)[33m;[39m [90m// edge case - bad input format[39m
+     [90m     |[39m                                            [31m[1m^[22m[39m
+     [90m 192 |[39m     })[33m;[39m
+     [90m 193 |[39m
+     [90m 194 |[39m     test([32m'should return empty string for null/undefined'[39m[33m,[39m () [33m=>[39m {[0m
+
+      at Object.toBe (__test__/libs/dataUtils.test.js:191:44)
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 49 passed, 51 total
+Snapshots:   0 total
+Time:        0.654 s, estimated 2 s
+Ran all test suites matching /__test__\\libs\\dataUtils.test.js/i.

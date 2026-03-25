@@ -22,7 +22,17 @@ export default function Signin() {
     try {
       const token = await AsyncStorage.getItem('accessToken');
       if (token) {
-        router.replace('/(tabs)/home');
+        // Jika sudah login, cek role dan redirect
+        const userJson = await AsyncStorage.getItem('user');
+        if (userJson) {
+          const user = JSON.parse(userJson);
+          const userRole = user.role || 'user';
+          if (userRole === 'admin' || userRole === 'Admin') {
+            router.replace('/admin');
+          } else {
+            router.replace('/user');
+          }
+        }
       }
     } catch (error) {
       console.log('Error checking login status:', error);
@@ -58,14 +68,20 @@ export default function Signin() {
         
         if (res.data.user) {
           await AsyncStorage.setItem('user', JSON.stringify(res.data.user));
+          
+          // Redirect dựa vào role
+          const userRole = res.data.user.role || 'user';
+          if (userRole === 'admin' || userRole === 'Admin') {
+            router.replace('/admin');
+          } else {
+            router.replace('/user');
+          }
         }
 
         Alert.alert('Thành công', `Chào mừng ${res.data.user?.displayName || 'bạn'}!`);
         
         setUsername('');
         setPassword('');
-        
-        router.replace('/(tabs)/home');
       }
     } catch (err) {
       console.log('Login error:', err);

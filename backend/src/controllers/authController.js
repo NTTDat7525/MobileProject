@@ -104,7 +104,7 @@ export const signOut = async (req, res) => {
             res.clearCookie('refreshToken'); //xóa refresh token trên trình duyệt
         }
 
-        return res.sendStatus(204); //không có nội dung trả về
+        return res.status(201).json({message: `User signed out successfully`}); //không có nội dung trả về
     } catch (error) {
         console.error("Error in signOut:", error);
         return res.status(500).json({message: "Internal server error"});

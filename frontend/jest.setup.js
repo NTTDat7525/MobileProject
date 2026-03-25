@@ -1,12 +1,12 @@
-// Mock ThemedView
-jest.mock('@/components/themed-view', () => ({
-  ThemedView: 'ThemedView',
-}));
+// // Mock ThemedView
+// jest.mock('@/components/themed-view', () => ({
+//   ThemedView: 'ThemedView',
+// }));
 
-// Mock ThemedText
-jest.mock('@/components/themed-text', () => ({
-  ThemedText: 'ThemedText',
-}));
+// // Mock ThemedText
+// jest.mock('@/components/themed-text', () => ({
+//   ThemedText: 'ThemedText',
+// }));
 
 // Mock expo modules that cause runtime issues
 jest.mock('expo-font', () => ({

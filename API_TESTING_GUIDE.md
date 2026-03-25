@@ -1,15 +1,32 @@
-# Hướng Dẫn Chi Tiết Test Toàn Bộ API Backend
+⚠️ **FILE HAS BEEN UPDATED** - New comprehensive version created!
+
+Please use:
+
+- **API_TESTING_GUIDE_V2.md** - New comprehensive guide with Postman instructions
+- **API_TEST_CASES.csv** - Manual test cases in CSV format
+
+This file is deprecated. See API_TESTING_GUIDE_V2.md for the latest version.
+
+---
+
+# ⚠️ DEPRECATED - Use API_TESTING_GUIDE_V2.md Instead
+
+# Hướng Dẫn Chi Tiết Test API Backend Trên Postman
 
 ## Mục Lục
 
 1. [Chuẩn Bị Môi Trường](#chuẩn-bị-môi-trường)
 2. [Thông Tin Chung](#thông-tin-chung)
-3. [Authentication APIs](#authentication-apis)
-4. [User APIs](#user-apis)
-5. [Admin APIs](#admin-apis)
-6. [Payment APIs](#payment-apis)
-7. [Testing Tools & Methods](#testing-tools--methods)
-8. [Troubleshooting](#troubleshooting)
+3. [Thứ Tự Ưu Tiên Test](#thứ-tự-ưu-tiên-test)
+4. [PRIORITY 1: Authentication APIs](#priority-1-authentication-apis)
+5. [PRIORITY 2: User Profile APIs](#priority-2-user-profile-apis)
+6. [PRIORITY 3: Tables & Bookings APIs](#priority-3-tables--bookings-apis)
+7. [PRIORITY 4: Orders APIs](#priority-4-orders-apis)
+8. [PRIORITY 5: Admin APIs](#priority-5-admin-apis)
+9. [PRIORITY 6: Payment APIs](#priority-6-payment-apis)
+10. [Hướng Dẫn Chi Tiết Postman](#hướng-dẫn-chi-tiết-postman)
+11. [Biến Môi Trường Postman](#biến-môi-trường-postman)
+12. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -1624,38 +1641,341 @@ curl -X POST http://localhost:5001/api/payment-return \
 
 ## Testing Tools & Methods
 
-### Option 1: Postman (Recommended)
+### Option 1: Postman (Recommended) - Hướng Dẫn Chi Tiết
 
-**Step 1: Create Collection**
+#### **BƯỚC 1: Cài Đặt Postman**
 
-1. Open Postman
-2. Click "Create" → "Collection"
-3. Name it "Restaurant API Testing"
+1. Tải Postman từ: https://www.postman.com/downloads/
+2. Cài đặt và mở ứng dụng
+3. Tạo account hoặc đăng nhập
+4. Bước này có thể bỏ qua nếu không muốn lưu workspace
 
-**Step 2: Setup Variables**
+#### **BƯỚC 2: Tạo Workspace và Collection**
 
-1. Click on collection → "Variables" tab
-2. Add variables:
-   - `baseUrl`: `http://localhost:5001/api`
-   - `token`: (będzie ustawiony po login)
-   - `adminToken`: (token admin account)
+1. Nhấp vào **"Workspace"** ở góc trên bên phải
+2. Chọn **"+ Create Workspace"**
+3. Đặt tên: **"Restaurant API Testing"**
+4. Chọn **"Create"**
 
-**Step 3: Import Requests**
-Create requests cho từng endpoint sử dụng variables:
+Giờ bạn sẽ được chuyển sang workspace mới. Tiếp theo:
 
+1. Nhấp vào **"+ Create"** (ở phía trái)
+2. Chọn **"Collection"**
+3. Đặt tên collection: **"Restaurant API"**
+4. Bỏ qua các bước khác
+5. Nhấp **"Create"**
+
+#### **BƯỚC 3: Setup Environment Variables (Rất Quan Trọng)**
+
+Biến môi trường giúp bạn sử dụng lại giá trị (base URL, token) mà không cần lặp lại:
+
+1. Ở thanh menu phía trên, tìm **"Environments"** (hoặc nhấp biểu tượng mắt kính ở góc trên bên phải)
+2. Nhấp **"Create Environment"** hoặc **"+"**
+3. Đặt tên: **"Restaurant API Dev"**
+4. Thêm các biến sau:
+
+| Variable Name | Initial Value               | Current Value               |
+| ------------- | --------------------------- | --------------------------- |
+| `baseUrl`     | `http://localhost:5001/api` | `http://localhost:5001/api` |
+| `token`       | (để trống)                  | (để trống)                  |
+| `adminToken`  | (để trống)                  | (để trống)                  |
+| `userId`      | (để trống)                  | (để trống)                  |
+| `bookingId`   | (để trống)                  | (để trống)                  |
+| `orderId`     | (để trống)                  | (để trống)                  |
+
+5. Nhấp **"Save"**
+6. Ở phía trên bên phải, chọn environment **"Restaurant API Dev"** từ dropdown
+
+#### **BƯỚC 4: Tạo Request Đầu Tiên - Sign Up (Đăng Ký)**
+
+1. Mở collection **"Restaurant API"** ở phía trái
+2. Nhấp vào **"..."** bên cạnh tên collection
+3. Chọn **"Add request"**
+4. Đặt tên request: **"01 - Sign Up"**
+
+Cấu hình request:
+
+**Phần URL:**
+
+- Method: **POST**
+- URL: `http://localhost:5001/api/auth/signup`
+
+Hoặc sử dụng biến:
+
+- URL: `{{baseUrl}}/auth/signup`
+
+**Phần Headers:**
+
+- Nhấp vào tab **"Headers"**
+- Thêm header tự động: `Content-Type: application/json` (thường tự thêm)
+
+**Phần Body:**
+
+- Nhấp vào tab **"Body"**
+- Chọn **"raw"**
+- Chọn định dạng **"JSON"** từ dropdown bên phải
+- Nhập request body:
+
+```json
+{
+  "username": "testuser123",
+  "email": "testuser123@example.com",
+  "password": "TestPassword123!",
+  "displayName": "Test User"
+}
 ```
-POST {{baseUrl}}/auth/signin
-Authorization: Bearer {{token}}
+
+**Nhấp "Send"** để gửi request
+
+- Nếu thành công, bạn sẽ thấy response có `"success": true`
+
+#### **BƯỚC 5: Tạo Request Sign In (Đăng Nhập)**
+
+1. Thêm request mới: **"02 - Sign In"**
+2. Cấu hình:
+
+**URL:**
+
+- Method: **POST**
+- URL: `{{baseUrl}}/auth/signin`
+
+**Body (raw JSON):**
+
+```json
+{
+  "email": "testuser123@example.com",
+  "password": "TestPassword123!"
+}
 ```
 
-**Step 4: Set Token dynamically**
-
-1. In Sign In request → Tests tab, add:
+3. **Quan trọng - Lưu Token Tự Động:**
+   - Nhấp vào tab **"Tests"** (bên cạnh Body)
+   - Nhập code JavaScript sau:
 
 ```javascript
-var jsonData = pm.response.json();
-pm.environment.set("token", jsonData.data.token);
+// Lưu token nếu đăng nhập thành công
+if (pm.response.code === 200) {
+  var jsonData = pm.response.json();
+  pm.environment.set("token", jsonData.data.token);
+  pm.environment.set("userId", jsonData.data.userId);
+  console.log("Token saved: " + jsonData.data.token);
+}
+
+// Kiểm tra response
+pm.test("Login successful", function () {
+  pm.response.to.have.status(200);
+});
+
+pm.test("Token is present", function () {
+  var jsonData = pm.response.json();
+  pm.expect(jsonData.data.token).to.be.a("string");
+});
 ```
+
+4. **Nhấp "Send"**
+   - Nếu thành công, token sẽ tự động lưu vào biến `{{token}}`
+   - Bạn có thể kiểm tra ở **"Environments"** để xem token đã lưu
+
+#### **BƯỚC 6: Test API Cần Authentication - Get Current User**
+
+1. Thêm request: **"03 - Get Current User"**
+2. Cấu hình:
+
+**URL:**
+
+- Method: **GET**
+- URL: `{{baseUrl}}/users/me`
+
+**Headers:**
+
+- Nhấp tab **"Headers"**
+- Thêm header:
+  - Key: `Authorization`
+  - Value: `Bearer {{token}}`
+
+**Nhấp "Send"**
+
+- Bây giờ request sẽ sử dụng token từ bước Sign In
+
+#### **BƯỚC 7: Tạo Request Get Tables (Xem Danh Sách Bàn)**
+
+1. Thêm request: **"04 - Get All Tables"**
+2. Cấu hình:
+
+**URL:**
+
+- Method: **GET**
+- URL: `{{baseUrl}}/users/tables`
+
+**Headers:**
+
+- Authorization: `Bearer {{token}}`
+
+**Tests:**
+
+```javascript
+if (pm.response.code === 200) {
+  var jsonData = pm.response.json();
+  // Lưu ID bàn đầu tiên để dùng sau
+  if (jsonData.data && jsonData.data.length > 0) {
+    pm.environment.set("tableId", jsonData.data[0].tableId);
+    console.log("Table ID saved: " + jsonData.data[0].tableId);
+  }
+}
+
+pm.test("Get tables successfully", function () {
+  pm.response.to.have.status(200);
+});
+```
+
+**Nhấp "Send"**
+
+- TableId sẽ tự động lưu
+
+#### **BƯỚC 8: Tạo Booking (Đặt Bàn)**
+
+1. Thêm request: **"05 - Create Booking"**
+2. Cấu hình:
+
+**URL:**
+
+- Method: **POST**
+- URL: `{{baseUrl}}/users/bookings`
+
+**Headers:**
+
+- Authorization: `Bearer {{token}}`
+- Content-Type: `application/json`
+
+**Body (raw JSON):**
+
+```json
+{
+  "tableId": "{{tableId}}",
+  "bookingDate": "2024-02-25",
+  "bookingTime": "19:00",
+  "numberOfGuests": 2,
+  "notes": "Bàn gần cửa sổ"
+}
+```
+
+**Tests:**
+
+```javascript
+if (pm.response.code === 201) {
+  var jsonData = pm.response.json();
+  pm.environment.set("bookingId", jsonData.data.bookingId);
+  console.log("Booking ID saved: " + jsonData.data.bookingId);
+}
+
+pm.test("Booking created successfully", function () {
+  pm.response.to.have.status(201);
+});
+```
+
+**Nhấp "Send"**
+
+#### **BƯỚC 9: Get Bookings (Xem Danh Sách Booking)**
+
+1. Thêm request: **"06 - Get User Bookings"**
+2. Cấu hình:
+
+**URL:**
+
+- Method: **GET**
+- URL: `{{baseUrl}}/users/bookings`
+
+**Headers:**
+
+- Authorization: `Bearer {{token}}`
+
+**Nhấp "Send"**
+
+#### **BƯỚC 10: Update Booking (Cập Nhật Booking)**
+
+1. Thêm request: **"07 - Update Booking"**
+2. Cấu hình:
+
+**URL:**
+
+- Method: **PUT**
+- URL: `{{baseUrl}}/users/bookings/{{bookingId}}`
+
+**Headers:**
+
+- Authorization: `Bearer {{token}}`
+
+**Body (raw JSON):**
+
+```json
+{
+  "bookingDate": "2024-02-26",
+  "bookingTime": "20:00",
+  "numberOfGuests": 3,
+  "notes": "Bàn gần cửa sổ, có điều hòa"
+}
+```
+
+**Nhấp "Send"**
+
+#### **BƯỚC 11: Cancel Booking (Hủy Booking)**
+
+1. Thêm request: **"08 - Cancel Booking"**
+2. Cấu hình:
+
+**URL:**
+
+- Method: **PUT**
+- URL: `{{baseUrl}}/users/bookings/{{bookingId}}/cancel`
+
+**Headers:**
+
+- Authorization: `Bearer {{token}}`
+
+**Body (raw JSON):**
+
+```json
+{
+  "cancellationReason": "Tôi không thể đến được"
+}
+```
+
+**Nhấp "Send"**
+
+#### **BƯỚC 12: Chia Sẻ Collection (Tùy Chọn)**
+
+Muốn chia sẻ collection với team:
+
+1. Ở phía trên, tìm **"Share"** hoặc biểu tượng share
+2. Chọn **"Export"** để lưu file `.json`
+3. Hoặc **"Invite team members"** nếu sử dụng Postman Team
+
+---
+
+#### **Lưu Ý Quan Trọng:**
+
+✅ **Luôn chạy request theo thứ tự:**
+
+- Sign Up → Sign In → (Các request khác)
+
+✅ **Kiểm tra token:**
+
+- Ở mục **"Environments"**, nhấp vào **"Restaurant API Dev"** để xem token
+
+✅ **Mỗi request phải có:**
+
+- Đúng method (GET, POST, PUT, DELETE)
+- Đúng header Authorization với token
+
+✅ **Kiểm tra Body Format:**
+
+- Raw và JSON format phải được chọn trước khi nhập body
+
+✅ **Lỗi thường gặp:**
+
+- **401 Unauthorized**: Token hết hạn hoặc chưa đúng
+- **400 Bad Request**: Dữ liệu body không đúng định dạng
+- **404 Not Found**: URL hoặc ID không đúng
 
 ### Option 2: cURL (Command Line)
 
