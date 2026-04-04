@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import Table from "../models/Table.js";
 import Booking from "../models/Booking.js";
 import Order from "../models/Order.js";
+import { Op } from "sequelize";
 
 /**
  * Get current user profile
@@ -21,7 +22,9 @@ export const authMe = async (req, res) => {
  */
 export const getUserProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.params.userId).select("-hashPassword");
+        const user = await User.findByPk(req.params.userId, {
+            attributes: { exclude: ['hashPassword'] }
+        });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -49,15 +52,19 @@ export const updateProfile = async (req, res) => {
         if (bio) updateData.bio = bio.trim();
         if (phone) updateData.phone = phone.trim();
 
-        const user = await User.findByIdAndUpdate(
-            req.user._id,
-            updateData,
-            { new: true, runValidators: true }
-        ).select("-hashPassword");
+        const user = await User.findByPk(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        await user.update(updateData);
 
         return res.status(200).json({
             message: "Profile updated successfully",
-            user
+            user: {
+                ...user.toJSON(),
+                hashPassword: undefined
+            }
         });
     } catch (error) {
         console.error("Error in updateProfile:", error);
@@ -71,14 +78,17 @@ export const updateProfile = async (req, res) => {
 export const getTables = async (req, res) => {
     try {
         const { type, capacity, location } = req.query;
-        const query = { status: "available" };
+        const where = { status: "available" };
 
         // Apply filters
-        if (type) query.type = type;
-        if (capacity) query.capacity = { $gte: parseInt(capacity) };
-        if (location) query.location = location;
+        if (type) where.type = type;
+        if (capacity) where.capacity = { [Op.gte]: parseInt(capacity) };
+        if (location) where.location = location;
 
-        const tables = await Table.find(query).sort({ capacity: 1 });
+        const tables = await Table.findAll({
+            where,
+            order: [['capacity', 'ASC']]
+        });
 
         return res.status(200).json({
             total: tables.length,
@@ -95,7 +105,7 @@ export const getTables = async (req, res) => {
  */
 export const getTableById = async (req, res) => {
     try {
-        const table = await Table.findById(req.params.tableId);
+        const table = await Table.findByPk(req.params.tableId);
         if (!table) {
             return res.status(404).json({ message: "Table not found" });
         }
@@ -137,7 +147,7 @@ export const createBooking = async (req, res) => {
         }
 
         // Check if table exists and has enough capacity
-        const table = await Table.findById(tableId);
+        const table = await Table.findByPk(tableId);
         if (!table) {
             return res.status(404).json({ message: "Table not found" });
         }
@@ -149,13 +159,20 @@ export const createBooking = async (req, res) => {
         }
 
         // Check if table is available at that time (simplified check)
+        const bookingDateStart = new Date(bookingDate);
+        bookingDateStart.setHours(0, 0, 0, 0);
+        const bookingDateEnd = new Date(bookingDate);
+        bookingDateEnd.setHours(23, 59, 59, 999);
+
         const existingBooking = await Booking.findOne({
-            tableId,
-            bookingDate: {
-                $gte: new Date(bookingDate).setHours(0, 0, 0, 0),
-                $lt: new Date(bookingDate).setHours(23, 59, 59, 999)
-            },
-            status: { $in: ["confirmed", "checked-in"] }
+            where: {
+                tableId,
+                bookingDate: {
+                    [Op.gte]: bookingDateStart,
+                    [Op.lt]: bookingDateEnd
+                },
+                status: { [Op.in]: ["confirmed", "checked-in"] }
+            }
         });
 
         if (existingBooking) {
@@ -165,8 +182,8 @@ export const createBooking = async (req, res) => {
         }
 
         // Create booking
-        const booking = new Booking({
-            userId: req.user._id,
+        const booking = await Booking.create({
+            userId: req.user.id,
             tableId,
             bookingDate,
             numberOfGuests,
@@ -179,8 +196,12 @@ export const createBooking = async (req, res) => {
             status: "pending"
         });
 
-        await booking.save();
-        await booking.populate("tableId userId orderId");
+        await booking.reload({
+            include: [
+                { association: 'table' },
+                { association: 'user' }
+            ]
+        });
 
         return res.status(201).json({
             message: "Booking created successfully",
@@ -198,16 +219,22 @@ export const createBooking = async (req, res) => {
 export const getUserBookings = async (req, res) => {
     try {
         const { status } = req.query;
-        const query = { userId: req.user._id };
+        const where = { userId: req.user.id };
 
         if (status) {
-            query.status = status;
+            where.status = status;
         }
 
-        const bookings = await Booking.find(query)
-            .populate("tableId", "tableNumber capacity type location")
-            .populate("orderId")
-            .sort({ bookingDate: -1 });
+        const bookings = await Booking.findAll({
+            where,
+            include: [
+                { 
+                    association: 'table',
+                    attributes: ['id', 'tableNumber', 'capacity', 'type', 'location']
+                }
+            ],
+            order: [['bookingDate', 'DESC']]
+        });
 
         return res.status(200).json({
             total: bookings.length,
@@ -224,17 +251,22 @@ export const getUserBookings = async (req, res) => {
  */
 export const getBookingById = async (req, res) => {
     try {
-        const booking = await Booking.findById(req.params.bookingId)
-            .populate("tableId")
-            .populate("userId", "-hashPassword")
-            .populate("orderId");
+        const booking = await Booking.findByPk(req.params.bookingId, {
+            include: [
+                { association: 'table' },
+                { 
+                    association: 'user',
+                    attributes: { exclude: ['hashPassword'] }
+                }
+            ]
+        });
 
         if (!booking) {
             return res.status(404).json({ message: "Booking not found" });
         }
 
         // Check if user owns this booking
-        if (booking.userId._id.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+        if (booking.userId !== req.user.id && req.user.role !== "admin") {
             return res.status(403).json({ message: "Unauthorized" });
         }
 
@@ -252,13 +284,13 @@ export const updateBooking = async (req, res) => {
     try {
         const { specialRequests, dietaryRestrictions, numberOfGuests } = req.body;
 
-        const booking = await Booking.findById(req.params.bookingId);
+        const booking = await Booking.findByPk(req.params.bookingId);
         if (!booking) {
             return res.status(404).json({ message: "Booking not found" });
         }
 
         // Check ownership
-        if (booking.userId.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+        if (booking.userId !== req.user.id && req.user.role !== "admin") {
             return res.status(403).json({ message: "Unauthorized" });
         }
 
@@ -270,12 +302,17 @@ export const updateBooking = async (req, res) => {
         }
 
         // Update allowed fields
-        if (specialRequests !== undefined) booking.specialRequests = specialRequests;
-        if (dietaryRestrictions !== undefined) booking.dietaryRestrictions = dietaryRestrictions;
-        if (numberOfGuests !== undefined) booking.numberOfGuests = numberOfGuests;
+        const updateData = {};
+        if (specialRequests !== undefined) updateData.specialRequests = specialRequests;
+        if (dietaryRestrictions !== undefined) updateData.dietaryRestrictions = dietaryRestrictions;
+        if (numberOfGuests !== undefined) updateData.numberOfGuests = numberOfGuests;
 
-        await booking.save();
-        await booking.populate("tableId orderId");
+        await booking.update(updateData);
+        await booking.reload({
+            include: [
+                { association: 'table' }
+            ]
+        });
 
         return res.status(200).json({
             message: "Booking updated successfully",
@@ -294,13 +331,13 @@ export const cancelBooking = async (req, res) => {
     try {
         const { reason } = req.body;
 
-        const booking = await Booking.findById(req.params.bookingId);
+        const booking = await Booking.findByPk(req.params.bookingId);
         if (!booking) {
             return res.status(404).json({ message: "Booking not found" });
         }
 
         // Check ownership
-        if (booking.userId.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+        if (booking.userId !== req.user.id && req.user.role !== "admin") {
             return res.status(403).json({ message: "Unauthorized" });
         }
 
@@ -311,11 +348,11 @@ export const cancelBooking = async (req, res) => {
             });
         }
 
-        booking.status = "cancelled";
-        booking.cancellationReason = reason || "User cancelled";
-        booking.cancellationDate = new Date();
-
-        await booking.save();
+        await booking.update({
+            status: "cancelled",
+            cancellationReason: reason || "User cancelled",
+            cancellationDate: new Date()
+        });
 
         return res.status(200).json({
             message: "Booking cancelled successfully",
@@ -332,11 +369,20 @@ export const cancelBooking = async (req, res) => {
  */
 export const getUserOrders = async (req, res) => {
     try {
-        const orders = await Order.find({ userId: req.user._id })
-            .populate("bookingId", "bookingDate guestName")
-            .populate("tableId", "tableNumber")
-            .populate("items.foodId", "name price")
-            .sort({ createdAt: -1 });
+        const orders = await Order.findAll({
+            where: { userId: req.user.id },
+            include: [
+                { 
+                    association: 'booking',
+                    attributes: ['id', 'bookingDate', 'guestName']
+                },
+                {
+                    association: 'table',
+                    attributes: ['id', 'tableNumber']
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
 
         return res.status(200).json({
             total: orders.length,
@@ -353,18 +399,23 @@ export const getUserOrders = async (req, res) => {
  */
 export const getOrderById = async (req, res) => {
     try {
-        const order = await Order.findById(req.params.orderId)
-            .populate("userId", "-hashPassword")
-            .populate("bookingId")
-            .populate("tableId")
-            .populate("items.foodId");
+        const order = await Order.findByPk(req.params.orderId, {
+            include: [
+                { 
+                    association: 'user',
+                    attributes: { exclude: ['hashPassword'] }
+                },
+                { association: 'booking' },
+                { association: 'table' }
+            ]
+        });
 
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
         }
 
         // Check ownership
-        if (order.userId._id.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+        if (order.userId !== req.user.id && req.user.role !== "admin") {
             return res.status(403).json({ message: "Unauthorized" });
         }
 

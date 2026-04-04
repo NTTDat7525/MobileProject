@@ -1,117 +1,115 @@
-import mongoose from "mongoose";
+import { DataTypes } from 'sequelize';
+import sequelize from '../libs/db.js';
+import User from './User.js';
 
-const sessionSchema = new mongoose.Schema({
-
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-    index: true
-  },
-
-  refreshToken: {
-    type: String,
-    required: true,
-    unique: true,
-    sparse: true
-  },
-
-  accessToken: {
-    type: String,
-    default: null
-  },
-
-  expiresAt: {
-    type: Date,
-    required: true,
-    index: true
-  },
-
-  deviceInfo: {
-    userAgent: {
-      type: String,
-      default: ""
+const Session = sequelize.define('Session', {
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+        allowNull: false
     },
-    deviceType: {
-      type: String,
-      enum: ['mobile', 'tablet', 'desktop'],
-      default: 'mobile'
+
+    userId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: User,
+            key: 'id'
+        }
     },
-    deviceName: {
-      type: String,
-      default: ""
+
+    refreshToken: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        unique: true
     },
-    osType: {
-      type: String,
-      enum: ['iOS', 'Android', 'Windows', 'macOS', 'Linux', 'Other'],
-      default: 'Other'
+
+    accessToken: {
+        type: DataTypes.TEXT,
+        defaultValue: null
     },
-    osVersion: {
-      type: String,
-      default: ""
+
+    expiresAt: {
+        type: DataTypes.DATE,
+        allowNull: false
     },
-    browser: {
-      type: String,
-      default: ""
+
+    deviceInfo: {
+        type: DataTypes.JSON,
+        defaultValue: {
+            userAgent: "",
+            deviceType: "mobile",
+            deviceName: "",
+            osType: "Other",
+            osVersion: "",
+            browser: ""
+        }
+    },
+
+    ipAddress: {
+        type: DataTypes.STRING(50),
+        defaultValue: null
+    },
+
+    isActive: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
+    },
+
+    location: {
+        type: DataTypes.JSON,
+        defaultValue: {
+            country: null,
+            city: null,
+            latitude: null,
+            longitude: null
+        }
+    },
+
+    lastActivityAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    },
+
+    loginAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    },
+
+    logoutAt: {
+        type: DataTypes.DATE,
+        defaultValue: null
+    },
+
+    createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    },
+
+    updatedAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
     }
-  },
-
-  ipAddress: {
-    type: String,
-    default: null,
-    index: true
-  },
-
-  isActive: {
-    type: Boolean,
-    default: true,
-    index: true
-  },
-
-  location: {
-    country: {
-      type: String,
-      default: null
-    },
-    city: {
-      type: String,
-      default: null
-    },
-    latitude: {
-      type: Number,
-      default: null
-    },
-    longitude: {
-      type: Number,
-      default: null
-    }
-  },
-
-  lastActivityAt: {
-    type: Date,
-    default: Date.now
-  },
-
-  loginAt: {
-    type: Date,
-    default: Date.now
-  },
-
-  logoutAt: {
-    type: Date,
-    default: null
-  }
 }, {
-  timestamps: true
+    tableName: 'Sessions',
+    timestamps: true,
+    indexes: [
+        {
+            fields: ['userId']
+        },
+        {
+            fields: ['expiresAt']
+        },
+        {
+            fields: ['isActive']
+        },
+        {
+            fields: ['ipAddress']
+        }
+    ]
 });
 
-sessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
-
-sessionSchema.index({ userId: 1, isActive: 1 });
-sessionSchema.index({ refreshToken: 1 });
-sessionSchema.index({ lastActivityAt: -1 });
-sessionSchema.index({ loginAt: -1 });
-
-const Session = mongoose.model('Session', sessionSchema);
+Session.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 export default Session;

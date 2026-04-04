@@ -1,126 +1,159 @@
-import mongoose from "mongoose";
+import { DataTypes } from 'sequelize';
+import sequelize from '../libs/db.js';
+import User from './User.js';
+import Table from './Table.js';
 
-const bookingSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-    index: true
-  },
+const Booking = sequelize.define('Booking', {
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+        allowNull: false
+    },
 
-  guestName: {
-    type: String,
-    required: true,
-    trim: true
-  },
+    userId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: User,
+            key: 'id'
+        }
+    },
 
-  guestEmail: {
-    type: String,
-    required: true,
-    trim: true,
-    lowercase: true
-  },
+    guestName: {
+        type: DataTypes.STRING(150),
+        allowNull: false
+    },
 
-  guestPhone: {
-    type: String,
-    required: true,
-    trim: true
-  },
+    guestEmail: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+        validate: {
+            isEmail: true
+        }
+    },
 
-  numberOfGuests: {
-    type: Number,
-    required: true,
-    min: 1,
-    max: 30
-  },
+    guestPhone: {
+        type: DataTypes.STRING(20),
+        allowNull: false
+    },
 
-  tableId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Table",
-    required: true,
-    index: true
-  },
+    numberOfGuests: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+            min: 1,
+            max: 30
+        }
+    },
 
-  bookingDate: {
-    type: Date,
-    required: true
-  },
+    tableId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Table,
+            key: 'id'
+        }
+    },
 
-  checkInTime: {
-    type: Date,
-    default: null
-  },
+    bookingDate: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
 
-  checkOutTime: {
-    type: Date,
-    default: null
-  },
+    checkInTime: {
+        type: DataTypes.DATE,
+        defaultValue: null
+    },
 
-  estimatedDuration: {
-    type: Number,
-    default: 120,
-    min: 30,
-    max: 480
-  },
+    checkOutTime: {
+        type: DataTypes.DATE,
+        defaultValue: null
+    },
 
-  specialRequests: {
-    type: String,
-    default: ""
-  },
+    estimatedDuration: {
+        type: DataTypes.INTEGER,
+        defaultValue: 120,
+        validate: {
+            min: 30,
+            max: 480
+        }
+    },
 
-  dietaryRestrictions: {
-    type: [String],
-    default: []
-  },
+    specialRequests: {
+        type: DataTypes.STRING(500),
+        defaultValue: ""
+    },
 
-  occasion: {
-    type: String,
-    enum: ['regular', 'birthday', 'anniversary', 'business', 'other'],
-    default: 'regular'
-  },
+    dietaryRestrictions: {
+        type: DataTypes.JSON,
+        defaultValue: []
+    },
 
-  status: {
-    type: String,
-    enum: ['pending', 'confirmed', 'checked-in', 'completed', 'cancelled'],
-    default: 'pending',
-    index: true
-  },
+    occasion: {
+        type: DataTypes.ENUM('regular', 'birthday', 'anniversary', 'business', 'other'),
+        defaultValue: 'regular'
+    },
 
-  cancellationReason: {
-    type: String,
-    default: null
-  },
+    status: {
+        type: DataTypes.ENUM('pending', 'confirmed', 'checked-in', 'completed', 'cancelled'),
+        defaultValue: 'pending'
+    },
 
-  cancellationDate: {
-    type: Date,
-    default: null
-  },
+    cancellationReason: {
+        type: DataTypes.STRING(500),
+        defaultValue: null
+    },
 
-  orderId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Order",
-    default: null
-  },
+    cancellationDate: {
+        type: DataTypes.DATE,
+        defaultValue: null
+    },
 
-  internalNotes: {
-    type: String,
-    default: ""
-  },
+    orderId: {
+        type: DataTypes.UUID,
+        defaultValue: null
+    },
 
-  reminderSent: {
-    type: Boolean,
-    default: false
-  }
+    internalNotes: {
+        type: DataTypes.STRING(500),
+        defaultValue: ""
+    },
+
+    reminderSent: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+
+    createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    },
+
+    updatedAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    }
 }, {
-  timestamps: true
+    tableName: 'Bookings',
+    timestamps: true,
+    indexes: [
+        {
+            fields: ['userId']
+        },
+        {
+            fields: ['tableId']
+        },
+        {
+            fields: ['status']
+        },
+        {
+            fields: ['bookingDate']
+        }
+    ]
 });
 
-bookingSchema.index({ userId: 1, bookingDate: -1 });
-bookingSchema.index({ tableId: 1, bookingDate: 1 });
-bookingSchema.index({ status: 1, bookingDate: 1 });
-bookingSchema.index({ bookingDate: 1 });
-bookingSchema.index({ createdAt: -1 });
-
-const Booking = mongoose.model("Booking", bookingSchema);
+Booking.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+Booking.belongsTo(Table, { foreignKey: 'tableId', as: 'table' });
 
 export default Booking;

@@ -1,186 +1,213 @@
-import mongoose from "mongoose";
+import { DataTypes } from 'sequelize';
+import sequelize from '../libs/db.js';
 
-const foodSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true,
-    maxlength: 100,
-    index: true
-  },
+const Food = sequelize.define('Food', {
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+        allowNull: false
+    },
 
-  description: {
-    type: String,
-    default: "",
-    maxlength: 500
-  },
+    name: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+        validate: {
+            len: [1, 100]
+        }
+    },
 
-  category: {
-    type: String,
-    enum: ['appetizer', 'soup', 'salad', 'main', 'dessert', 'beverage', 'wine', 'side'],
-    required: true,
-    index: true
-  },
+    description: {
+        type: DataTypes.STRING(500),
+        defaultValue: ""
+    },
 
-  cuisine: {
-    type: String,
-    enum: ['vietnamese', 'asian', 'european', 'fusion', 'vegetarian', 'vegan'],
-    default: 'vietnamese'
-  },
+    category: {
+        type: DataTypes.ENUM('appetizer', 'soup', 'salad', 'main', 'dessert', 'beverage', 'wine', 'side'),
+        allowNull: false
+    },
 
-  price: {
-    type: Number,
-    required: true,
-    min: 0
-  },
+    cuisine: {
+        type: DataTypes.ENUM('vietnamese', 'asian', 'european', 'fusion', 'vegetarian', 'vegan'),
+        defaultValue: 'vietnamese'
+    },
 
-  discountPrice: {
-    type: Number,
-    default: null,
-    min: 0
-  },
+    price: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        validate: {
+            min: 0
+        }
+    },
 
-  calories: {
-    type: Number,
-    default: null
-  },
+    discountPrice: {
+        type: DataTypes.DECIMAL(10, 2),
+        defaultValue: null
+    },
 
-  protein: {
-    type: Number,
-    default: null
-  },
+    calories: {
+        type: DataTypes.INTEGER,
+        defaultValue: null
+    },
 
-  fat: {
-    type: Number,
-    default: null
-  },
+    protein: {
+        type: DataTypes.DECIMAL(8, 2),
+        defaultValue: null
+    },
 
-  carbs: {
-    type: Number,
-    default: null
-  },
+    fat: {
+        type: DataTypes.DECIMAL(8, 2),
+        defaultValue: null
+    },
 
-  allergens: {
-    type: [String],
-    enum: ['peanuts', 'tree nuts', 'milk', 'eggs', 'soy', 'wheat', 'fish', 'shellfish', 'sesame'],
-    default: []
-  },
+    carbs: {
+        type: DataTypes.DECIMAL(8, 2),
+        defaultValue: null
+    },
 
-  isVegetarian: {
-    type: Boolean,
-    default: false
-  },
+    allergens: {
+        type: DataTypes.JSON,
+        defaultValue: []
+    },
 
-  isVegan: {
-    type: Boolean,
-    default: false
-  },
+    isVegetarian: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
 
-  isGluten: {
-    type: Boolean,
-    default: false
-  },
+    isVegan: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
 
-  image: {
-    type: String,
-    default: null
-  },
+    isGluten: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
 
-  images: {
-    type: [String],
-    default: []
-  },
+    image: {
+        type: DataTypes.STRING(500),
+        defaultValue: null
+    },
 
-  isAvailable: {
-    type: Boolean,
-    default: true,
-    index: true
-  },
+    images: {
+        type: DataTypes.JSON,
+        defaultValue: []
+    },
 
-  availableFrom: {
-    type: String,
-    default: null
-  },
+    isAvailable: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
+    },
 
-  availableUntil: {
-    type: String,
-    default: null
-  },
+    availableFrom: {
+        type: DataTypes.STRING(20),
+        defaultValue: null
+    },
 
-  stockQuantity: {
-    type: Number,
-    default: null
-  },
+    availableUntil: {
+        type: DataTypes.STRING(20),
+        defaultValue: null
+    },
 
-  lowStockThreshold: {
-    type: Number,
-    default: 10
-  },
+    stockQuantity: {
+        type: DataTypes.INTEGER,
+        defaultValue: null
+    },
 
-  rating: {
-    type: Number,
-    default: 0,
-    min: 0,
-    max: 5
-  },
+    lowStockThreshold: {
+        type: DataTypes.INTEGER,
+        defaultValue: 10
+    },
 
-  ratingCount: {
-    type: Number,
-    default: 0
-  },
+    rating: {
+        type: DataTypes.DECIMAL(3, 2),
+        defaultValue: 0,
+        validate: {
+            min: 0,
+            max: 5
+        }
+    },
 
-  orderCount: {
-    type: Number,
-    default: 0
-  },
+    ratingCount: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
 
-  preparationTime: {
-    type: Number,
-    default: 15,
-    min: 5
-  },
+    orderCount: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
 
-  difficulty: {
-    type: String,
-    enum: ['easy', 'medium', 'hard'],
-    default: 'easy'
-  },
+    preparationTime: {
+        type: DataTypes.INTEGER,
+        defaultValue: 15,
+        validate: {
+            min: 5
+        }
+    },
 
-  spiceLevel: {
-    type: Number,
-    default: 0,
-    min: 0,
-    max: 5
-  },
+    difficulty: {
+        type: DataTypes.ENUM('easy', 'medium', 'hard'),
+        defaultValue: 'easy'
+    },
 
-  portions: {
-    type: Number,
-    default: 1
-  },
+    spiceLevel: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        validate: {
+            min: 0,
+            max: 5
+        }
+    },
 
-  tags: {
-    type: [String],
-    default: []
-  },
+    portions: {
+        type: DataTypes.INTEGER,
+        defaultValue: 1
+    },
 
-  status: {
-    type: String,
-    enum: ['active', 'inactive', 'archived'],
-    default: 'active',
-    index: true
-  }
+    tags: {
+        type: DataTypes.JSON,
+        defaultValue: []
+    },
+
+    status: {
+        type: DataTypes.ENUM('active', 'inactive', 'archived'),
+        defaultValue: 'active'
+    },
+
+    createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    },
+
+    updatedAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    }
 }, {
-  timestamps: true
+    tableName: 'Foods',
+    timestamps: true,
+    indexes: [
+        {
+            fields: ['name']
+        },
+        {
+            fields: ['category']
+        },
+        {
+            fields: ['isAvailable']
+        },
+        {
+            fields: ['cuisine']
+        },
+        {
+            fields: ['status']
+        },
+        {
+            fields: ['price']
+        }
+    ]
 });
-
-foodSchema.index({ category: 1, isAvailable: 1 });
-foodSchema.index({ cuisine: 1 });
-foodSchema.index({ rating: -1 });
-foodSchema.index({ price: 1 });
-foodSchema.index({ name: 'text', description: 'text' });
-foodSchema.index({ tags: 1 });
-foodSchema.index({ createdAt: -1 });
-
-const Food = mongoose.model("Food", foodSchema);
 
 export default Food;

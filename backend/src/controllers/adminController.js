@@ -2,20 +2,21 @@ import Table from "../models/Table.js";
 import Booking from "../models/Booking.js";
 import Order from "../models/Order.js";
 import Food from "../models/Food.js";
+import { Op } from "sequelize";
 
 export const getRevenue = async (req, res) => {
     try {
         const { startDate, endDate } = req.query;
-        const query = { paymentStatus: "paid" };
+        const where = { paymentStatus: "paid" };
 
         if (startDate || endDate) {
-            query.paymentDate = {};
-            if (startDate) query.paymentDate.$gte = new Date(startDate);
-            if (endDate) query.paymentDate.$lte = new Date(endDate);
+            where.paymentDate = {};
+            if (startDate) where.paymentDate[Op.gte] = new Date(startDate);
+            if (endDate) where.paymentDate[Op.lte] = new Date(endDate);
         }
 
-        const orders = await Order.find(query);
-        const totalRevenue = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+        const orders = await Order.findAll({ where });
+        const totalRevenue = orders.reduce((sum, order) => sum + parseFloat(order.totalAmount), 0);
         const totalOrders = orders.length;
         const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
@@ -33,7 +34,7 @@ export const getRevenue = async (req, res) => {
 
 export const getTableStatus = async (req, res) => {
     try {
-        const tables = await Table.find().populate("currentBookingId");
+        const tables = await Table.findAll();
 
         // Calculate status summary
         const summary = {
@@ -58,7 +59,7 @@ export const payOrder = async (req, res) => {
     try {
         const { paymentMethod, transactionId } = req.body;
 
-        const order = await Order.findById(req.params.orderId);
+        const order = await Order.findByPk(req.params.orderId);
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
         }
@@ -67,13 +68,13 @@ export const payOrder = async (req, res) => {
             return res.status(400).json({ message: "Order is already paid" });
         }
 
-        order.paymentMethod = paymentMethod || order.paymentMethod;
-        order.paymentStatus = "paid";
-        order.paidAmount = order.totalAmount;
-        order.paymentDate = new Date();
-        if (transactionId) order.transactionId = transactionId;
-
-        await order.save();
+        await order.update({
+            paymentMethod: paymentMethod || order.paymentMethod,
+            paymentStatus: "paid",
+            paidAmount: order.totalAmount,
+            paymentDate: new Date(),
+            ...(transactionId && { transactionId })
+        });
 
         return res.status(200).json({
             message: "Order payment updated successfully",
@@ -102,14 +103,14 @@ export const addTable = async (req, res) => {
             });
         }
 
-        const existingTable = await Table.findOne({ tableNumber });
+        const existingTable = await Table.findOne({ where: { tableNumber } });
         if (existingTable) {
             return res.status(400).json({
                 message: "Table number already exists"
             });
         }
 
-        const table = new Table({
+        const table = await Table.create({
             tableNumber,
             capacity,
             type,
@@ -123,8 +124,6 @@ export const addTable = async (req, res) => {
             },
             status: "available"
         });
-
-        await table.save();
 
         return res.status(201).json({
             message: "Table created successfully",
@@ -140,19 +139,20 @@ export const updateTable = async (req, res) => {
     try {
         const { capacity, type, location, features, description, status } = req.body;
 
-        const table = await Table.findById(req.params.tableId);
+        const table = await Table.findByPk(req.params.tableId);
         if (!table) {
             return res.status(404).json({ message: "Table not found" });
         }
 
-        if (capacity !== undefined) table.capacity = capacity;
-        if (type !== undefined) table.type = type;
-        if (location !== undefined) table.location = location;
-        if (description !== undefined) table.description = description;
-        if (features !== undefined) table.features = { ...table.features, ...features };
-        if (status !== undefined) table.status = status;
+        const updateData = {};
+        if (capacity !== undefined) updateData.capacity = capacity;
+        if (type !== undefined) updateData.type = type;
+        if (location !== undefined) updateData.location = location;
+        if (description !== undefined) updateData.description = description;
+        if (features !== undefined) updateData.features = { ...table.features, ...features };
+        if (status !== undefined) updateData.status = status;
 
-        await table.save();
+        await table.update(updateData);
 
         return res.status(200).json({
             message: "Table updated successfully",
@@ -166,10 +166,12 @@ export const updateTable = async (req, res) => {
 
 export const deleteTable = async (req, res) => {
     try {
-        const table = await Table.findByIdAndDelete(req.params.tableId);
+        const table = await Table.findByPk(req.params.tableId);
         if (!table) {
             return res.status(404).json({ message: "Table not found" });
         }
+
+        await table.destroy();
 
         return res.status(200).json({
             message: "Table deleted successfully"
@@ -184,7 +186,7 @@ export const updateBookingStatus = async (req, res) => {
     try {
         const { status, notes } = req.body;
 
-        const booking = await Booking.findById(req.params.bookingId);
+        const booking = await Booking.findByPk(req.params.bookingId);
         if (!booking) {
             return res.status(404).json({ message: "Booking not found" });
         }
@@ -194,22 +196,25 @@ export const updateBookingStatus = async (req, res) => {
             return res.status(400).json({ message: "Invalid status" });
         }
 
-        booking.status = status;
-        if (notes) booking.internalNotes = notes;
+        const updateData = { status };
+        if (notes) updateData.internalNotes = notes;
+        
+        await booking.update(updateData);
 
-        const table = await Table.findById(booking.tableId);
+        const table = await Table.findByPk(booking.tableId);
         if (table) {
             if (status === "checked-in") {
-                table.status = "occupied";
-                table.currentBookingId = booking._id;
+                await table.update({
+                    status: "occupied",
+                    currentBookingId: booking.id
+                });
             } else if (status === "completed" || status === "cancelled") {
-                table.status = "available";
-                table.currentBookingId = null;
+                await table.update({
+                    status: "available",
+                    currentBookingId: null
+                });
             }
-            await table.save();
         }
-
-        await booking.save();
 
         return res.status(200).json({
             message: "Booking status updated successfully",
@@ -225,23 +230,24 @@ export const cancelBooking = async (req, res) => {
     try {
         const { reason } = req.body;
 
-        const booking = await Booking.findById(req.params.bookingId);
+        const booking = await Booking.findByPk(req.params.bookingId);
         if (!booking) {
             return res.status(404).json({ message: "Booking not found" });
         }
 
-        booking.status = "cancelled";
-        booking.cancellationReason = reason || "Admin cancelled";
-        booking.cancellationDate = new Date();
+        await booking.update({
+            status: "cancelled",
+            cancellationReason: reason || "Admin cancelled",
+            cancellationDate: new Date()
+        });
 
-        const table = await Table.findById(booking.tableId);
-        if (table && table.currentBookingId?.toString() === booking._id.toString()) {
-            table.status = "available";
-            table.currentBookingId = null;
-            await table.save();
+        const table = await Table.findByPk(booking.tableId);
+        if (table && table.currentBookingId === booking.id) {
+            await table.update({
+                status: "available",
+                currentBookingId: null
+            });
         }
-
-        await booking.save();
 
         return res.status(200).json({
             message: "Booking cancelled successfully",
@@ -274,7 +280,7 @@ export const createFood = async (req, res) => {
             });
         }
 
-        const food = new Food({
+        const food = await Food.create({
             name: name.trim(),
             description: description?.trim() || "",
             category,
@@ -289,8 +295,6 @@ export const createFood = async (req, res) => {
             isAvailable: true
         });
 
-        await food.save();
-
         return res.status(201).json({
             message: "Food item created successfully",
             food
@@ -304,16 +308,18 @@ export const createFood = async (req, res) => {
 export const getFoods = async (req, res) => {
     try {
         const { category, cuisine, isVegetarian, isVegan, status } = req.query;
-        const query = {};
+        const where = {};
 
-        if (category) query.category = category;
-        if (cuisine) query.cuisine = cuisine;
-        if (isVegetarian === "true") query.isVegetarian = true;
-        if (isVegan === "true") query.isVegan = true;
-        if (status) query.status = status;
+        if (category) where.category = category;
+        if (cuisine) where.cuisine = cuisine;
+        if (isVegetarian === "true") where.isVegetarian = true;
+        if (isVegan === "true") where.isVegan = true;
+        if (status) where.status = status;
 
-        const foods = await Food.find(query)
-            .sort({ createdAt: -1 });
+        const foods = await Food.findAll({
+            where,
+            order: [['createdAt', 'DESC']]
+        });
 
         return res.status(200).json({
             total: foods.length,
@@ -327,7 +333,7 @@ export const getFoods = async (req, res) => {
 
 export const getFoodById = async (req, res) => {
     try {
-        const food = await Food.findById(req.params.foodId);
+        const food = await Food.findByPk(req.params.foodId);
         if (!food) {
             return res.status(404).json({ message: "Food not found" });
         }
@@ -356,24 +362,25 @@ export const updateFood = async (req, res) => {
             isAvailable
         } = req.body;
 
-        const food = await Food.findById(req.params.foodId);
+        const food = await Food.findByPk(req.params.foodId);
         if (!food) {
             return res.status(404).json({ message: "Food not found" });
         }
 
         // Update fields
-        if (name !== undefined) food.name = name.trim();
-        if (description !== undefined) food.description = description.trim();
-        if (price !== undefined) food.price = price;
-        if (discountPrice !== undefined) food.discountPrice = discountPrice;
-        if (allergens !== undefined) food.allergens = allergens;
-        if (isVegetarian !== undefined) food.isVegetarian = isVegetarian;
-        if (isVegan !== undefined) food.isVegan = isVegan;
-        if (spiceLevel !== undefined) food.spiceLevel = spiceLevel;
-        if (status !== undefined) food.status = status;
-        if (isAvailable !== undefined) food.isAvailable = isAvailable;
+        const updateData = {};
+        if (name !== undefined) updateData.name = name.trim();
+        if (description !== undefined) updateData.description = description.trim();
+        if (price !== undefined) updateData.price = price;
+        if (discountPrice !== undefined) updateData.discountPrice = discountPrice;
+        if (allergens !== undefined) updateData.allergens = allergens;
+        if (isVegetarian !== undefined) updateData.isVegetarian = isVegetarian;
+        if (isVegan !== undefined) updateData.isVegan = isVegan;
+        if (spiceLevel !== undefined) updateData.spiceLevel = spiceLevel;
+        if (status !== undefined) updateData.status = status;
+        if (isAvailable !== undefined) updateData.isAvailable = isAvailable;
 
-        await food.save();
+        await food.update(updateData);
 
         return res.status(200).json({
             message: "Food updated successfully",
@@ -390,10 +397,12 @@ export const updateFood = async (req, res) => {
  */
 export const deleteFood = async (req, res) => {
     try {
-        const food = await Food.findByIdAndDelete(req.params.foodId);
+        const food = await Food.findByPk(req.params.foodId);
         if (!food) {
             return res.status(404).json({ message: "Food not found" });
         }
+
+        await food.destroy();
 
         return res.status(200).json({
             message: "Food deleted successfully"
@@ -430,14 +439,14 @@ export const createOrder = async (req, res) => {
         const processedItems = [];
 
         for (const item of items) {
-            const food = await Food.findById(item.foodId);
+            const food = await Food.findByPk(item.foodId);
             if (!food) {
                 return res.status(404).json({
                     message: `Food item ${item.foodId} not found`
                 });
             }
 
-            const itemTotal = food.price * item.quantity;
+            const itemTotal = parseFloat(food.price) * item.quantity;
             subtotal += itemTotal;
 
             processedItems.push({
@@ -454,7 +463,7 @@ export const createOrder = async (req, res) => {
         const serviceCharge = subtotal * 0.05; // 5% service charge
         const totalAmount = subtotal + tax + serviceCharge;
 
-        const order = new Order({
+        const order = await Order.create({
             orderNumber: `ORD${Date.now()}`,
             userId: userId || null,
             bookingId,
@@ -471,8 +480,12 @@ export const createOrder = async (req, res) => {
             notes: notes || ""
         });
 
-        await order.save();
-        await order.populate("bookingId tableId items.foodId");
+        await order.reload({
+            include: [
+                { association: 'booking' },
+                { association: 'table' }
+            ]
+        });
 
         return res.status(201).json({
             message: "Order created successfully",
@@ -491,7 +504,7 @@ export const updateOrderStatus = async (req, res) => {
     try {
         const { status } = req.body;
 
-        const order = await Order.findById(req.params.orderId);
+        const order = await Order.findByPk(req.params.orderId);
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
         }
@@ -502,14 +515,14 @@ export const updateOrderStatus = async (req, res) => {
         }
 
         // Set timing based on status
+        const updateData = { status };
         if (status === "preparing" && !order.startedAt) {
-            order.startedAt = new Date();
+            updateData.startedAt = new Date();
         } else if (status === "completed" && !order.completedAt) {
-            order.completedAt = new Date();
+            updateData.completedAt = new Date();
         }
 
-        order.status = status;
-        await order.save();
+        await order.update(updateData);
 
         return res.status(200).json({
             message: "Order status updated successfully",
@@ -528,33 +541,39 @@ export const addItemToOrder = async (req, res) => {
     try {
         const { foodId, quantity, specialInstructions } = req.body;
 
-        const order = await Order.findById(req.params.orderId);
+        const order = await Order.findByPk(req.params.orderId);
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
         }
 
-        const food = await Food.findById(foodId);
+        const food = await Food.findByPk(foodId);
         if (!food) {
             return res.status(404).json({ message: "Food not found" });
         }
 
         // Add item
-        const itemPrice = food.price * quantity;
-        order.items.push({
+        const itemPrice = parseFloat(food.price) * quantity;
+        const updatedItems = [...order.items, {
             foodId,
             foodName: food.name,
             quantity,
             unitPrice: food.price,
             specialInstructions: specialInstructions || ""
-        });
+        }];
 
         // Recalculate totals
-        order.subtotal += itemPrice;
-        order.tax = order.subtotal * 0.1;
-        order.serviceCharge = order.subtotal * 0.05;
-        order.totalAmount = order.subtotal + order.tax + order.serviceCharge - order.discount;
+        const newSubtotal = parseFloat(order.subtotal) + itemPrice;
+        const newTax = newSubtotal * 0.1;
+        const newServiceCharge = newSubtotal * 0.05;
+        const newTotalAmount = newSubtotal + newTax + newServiceCharge - parseFloat(order.discount);
 
-        await order.save();
+        await order.update({
+            items: updatedItems,
+            subtotal: newSubtotal,
+            tax: newTax,
+            serviceCharge: newServiceCharge,
+            totalAmount: newTotalAmount
+        });
 
         return res.status(200).json({
             message: "Item added to order successfully",
@@ -573,33 +592,37 @@ export const getOrderStats = async (req, res) => {
     try {
         const { period } = req.query; // day, week, month
 
-        let dateFilter = {};
+        let where = {};
         const now = new Date();
 
         if (period === "day") {
-            dateFilter = {
-                $gte: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-                $lt: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+            const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const dayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+            where.createdAt = {
+                [Op.gte]: dayStart,
+                [Op.lt]: dayEnd
             };
         } else if (period === "week") {
-            const weekAgo = new Date(now.setDate(now.getDate() - 7));
-            dateFilter = { $gte: weekAgo };
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            where.createdAt = { [Op.gte]: weekAgo };
         } else if (period === "month") {
-            dateFilter = {
-                $gte: new Date(now.getFullYear(), now.getMonth(), 1),
-                $lt: new Date(now.getFullYear(), now.getMonth() + 1, 1)
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+            where.createdAt = {
+                [Op.gte]: monthStart,
+                [Op.lt]: monthEnd
             };
         }
 
-        const orders = await Order.find({ createdAt: dateFilter });
+        const orders = await Order.findAll({ where });
 
         const stats = {
             totalOrders: orders.length,
-            totalRevenue: orders.reduce((sum, o) => sum + o.totalAmount, 0),
+            totalRevenue: orders.reduce((sum, o) => sum + parseFloat(o.totalAmount), 0),
             completedOrders: orders.filter(o => o.status === "completed").length,
             cancelledOrders: orders.filter(o => o.status === "cancelled").length,
             paidOrders: orders.filter(o => o.paymentStatus === "paid").length,
-            avgOrderValue: orders.length > 0 ? orders.reduce((sum, o) => sum + o.totalAmount, 0) / orders.length : 0
+            avgOrderValue: orders.length > 0 ? orders.reduce((sum, o) => sum + parseFloat(o.totalAmount), 0) / orders.length : 0
         };
 
         return res.status(200).json(stats);

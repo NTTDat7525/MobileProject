@@ -1,94 +1,109 @@
-import mongoose from "mongoose";
+import { DataTypes } from 'sequelize';
+import sequelize from '../libs/db.js';
 
-const tableSchema = new mongoose.Schema({
-  tableNumber: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true
-  },
-
-  capacity: {
-    type: Number,
-    required: true,
-    min: 1,
-    max: 20
-  },
-
-  type: {
-    type: String,
-    enum: ['standard', 'vip', 'bar', 'outdoor'],
-    required: true,
-    default: 'standard'
-  },
-
-  location: {
-    type: String,
-    required: true,
-    enum: ['indoor', 'outdoor', 'terrace']
-  },
-
-  description: {
-    type: String,
-    default: ""
-  },
-
-  status: {
-    type: String,
-    enum: ['available', 'occupied', 'reserved', 'maintenance'],
-    default: 'available'
-  },
-
-  currentBookingId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Booking',
-    default: null
-  },
-
-  features: {
-    hasWindow: {
-      type: Boolean,
-      default: false
+const Table = sequelize.define('Table', {
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+        allowNull: false
     },
-    hasView: {
-      type: Boolean,
-      default: false
+
+    tableNumber: {
+        type: DataTypes.STRING(50),
+        allowNull: false,
+        unique: true
     },
-    isHighChairs: {
-      type: Boolean,
-      default: false
+
+    capacity: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+            min: 1,
+            max: 20
+        }
     },
-    wheelchair: {
-      type: Boolean,
-      default: false
+
+    type: {
+        type: DataTypes.ENUM('standard', 'vip', 'bar', 'outdoor'),
+        defaultValue: 'standard'
+    },
+
+    location: {
+        type: DataTypes.ENUM('indoor', 'outdoor', 'terrace'),
+        allowNull: false
+    },
+
+    description: {
+        type: DataTypes.STRING(500),
+        defaultValue: ""
+    },
+
+    status: {
+        type: DataTypes.ENUM('available', 'occupied', 'reserved', 'maintenance'),
+        defaultValue: 'available'
+    },
+
+    currentBookingId: {
+        type: DataTypes.UUID,
+        defaultValue: null
+    },
+
+    features: {
+        type: DataTypes.JSON,
+        defaultValue: {
+            hasWindow: false,
+            hasView: false,
+            isHighChairs: false,
+            wheelchair: false
+        }
+    },
+
+    surchargePercentage: {
+        type: DataTypes.DECIMAL(5, 2),
+        defaultValue: 0,
+        validate: {
+            min: 0,
+            max: 50
+        }
+    },
+
+    lastCleaned: {
+        type: DataTypes.DATE,
+        defaultValue: null
+    },
+
+    maintenanceNotes: {
+        type: DataTypes.STRING(500),
+        defaultValue: ""
+    },
+
+    createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    },
+
+    updatedAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
     }
-  },
-
-  surchargePercentage: {
-    type: Number,
-    default: 0,
-    min: 0,
-    max: 50
-  },
-
-  lastCleaned: {
-    type: Date,
-    default: null
-  },
-
-  maintenanceNotes: {
-    type: String,
-    default: ""
-  }
 }, {
-  timestamps: true
+    tableName: 'Tables',
+    timestamps: true,
+    indexes: [
+        {
+            fields: ['status']
+        },
+        {
+            fields: ['capacity']
+        },
+        {
+            fields: ['type']
+        },
+        {
+            fields: ['currentBookingId']
+        }
+    ]
 });
-
-tableSchema.index({ status: 1 });
-tableSchema.index({ capacity: 1 });
-tableSchema.index({ type: 1 });
-tableSchema.index({ currentBookingId: 1 });
-
-const Table = mongoose.model('Table', tableSchema);
 
 export default Table;

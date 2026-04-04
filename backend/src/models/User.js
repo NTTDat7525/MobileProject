@@ -1,56 +1,80 @@
-import mongoose from "mongoose";
+import { DataTypes } from 'sequelize';
+import sequelize from '../libs/db.js';
 
-const userSchema = new mongoose.Schema({
-        username:{
-            type: String,
-            required: true,//bắt buộc phải có
-            unique: true,//độc nhất
-            trim: true,//xóa khoảng trắng thừa
-            lowercase: true//chuyển về chữ thường
-        },
-
-        hashPassword:{
-            type: String,
-            required: true
-        },
-
-        email:{
-            type: String,
-            required: true,
-            unique: true,
-            trim: true,
-            lowercase: true
-        },
-
-        displayName:{//tên hiển thị
-            type: String,
-            required: true,
-            trim: true
-        },
-
-        bio:{
-            type: String,
-            maxlenghth: 500,
-            default: ""
-        },
-
-        phone:{
-            type: String,
-            trim: true,
-            sparse: true//cho phép null và unique
-        },
-
-        role: {
-            type: String,
-            enum: ['user', 'admin'],//chỉ được phép là user hoặc admin
-            default: 'user'
+const User = sequelize.define('User', {
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+        allowNull: false
+    },
+    
+    username: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+        unique: true,
+        validate: {
+            len: [3, 100]
         }
-    }, 
+    },
 
-    {//cấu hình
-        timestamps: true//tự động tạo createdAt và updatedAt
+    hashPassword: {
+        type: DataTypes.STRING(255),
+        allowNull: false
+    },
+
+    email: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+        unique: true,
+        validate: {
+            isEmail: true
+        }
+    },
+
+    displayName: {
+        type: DataTypes.STRING(150),
+        allowNull: false
+    },
+
+    bio: {
+        type: DataTypes.STRING(500),
+        defaultValue: ""
+    },
+
+    phone: {
+        type: DataTypes.STRING(20),
+        allowNull: true
+    },
+
+    role: {
+        type: DataTypes.ENUM('user', 'admin'),
+        defaultValue: 'user'
+    },
+
+    createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    },
+
+    updatedAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    }
+}, {
+    tableName: 'Users',
+    timestamps: true,
+    indexes: [
+        {
+            fields: ['username']
+        },
+        {
+            fields: ['email']
+        },
+        {
+            fields: ['role']
+        }
+    ]
 });
 
-const User = mongoose.model('User', userSchema);
-
-export default User;//lưu thông tin user
+export default User;

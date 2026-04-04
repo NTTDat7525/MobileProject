@@ -9,6 +9,15 @@ import { protectedRoute } from './middlewares/authMiddleware.js';
 import { authorizeRoles } from './middlewares/roleMiddleware.js';
 import paymentRoute from "./routes/paymentRoute.js"
 import cors from "cors";
+
+// Import all models to ensure they're registered with Sequelize
+import User from './models/User.js';
+import Session from './models/Sesstion.js';
+import Table from './models/Table.js';
+import Food from './models/Food.js';
+import Order from './models/Order.js';
+import Booking from './models/Booking.js';
+
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -37,4 +46,7 @@ connectDB().then(() => {
     app.listen(PORT, () => {
         console.log('Server is running on port ' + PORT);
     });
+}).catch(err => {
+    console.error('Failed to connect to database:', err);
+    process.exit(1);
 });

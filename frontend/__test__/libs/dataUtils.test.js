@@ -15,9 +15,6 @@ import {
 } from '../../libs/dataUtils';
 
 describe('Data Utility Functions', () => {
-  // ===============================
-  // Table Availability Tests
-  // ===============================
 
   describe('getAvailableTables', () => {
     const mockTables = [

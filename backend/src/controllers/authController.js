@@ -17,7 +17,7 @@ export const signUp = async (req, res) => {
         }
 
         //kiểm tra username đã tồn tại chưa
-        const duplicate = await User.findOne({username});//kiểm tra trong db username đã tồn tại chưa
+        const duplicate = await User.findOne({where: {username}});//kiểm tra trong db username đã tồn tại chưa
         if(duplicate){
             return res.status(409).json({message: "Username already exists"});
         }
@@ -51,7 +51,7 @@ export const signIn = async (req, res) => {
         }
 
         //lấy hashPassword từ db dựa vào username so với password input
-        const user = await User.findOne({username});
+        const user = await User.findOne({where: {username}});
         if(!user){
             return res.status(401).json({message: "User or password is incorrect"});
         }
@@ -63,14 +63,14 @@ export const signIn = async (req, res) => {
         }
 
         //nếu khớp tạo access token = JWT
-        const accessToken = jwt.sign({userId: user._id}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: ACCESS_TOKEN_TTL});
+        const accessToken = jwt.sign({userId: user.id}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: ACCESS_TOKEN_TTL});
 
         //tạo refresh token = JWT
         const refreshToken = crypto.randomBytes(64).toString('hex'); //tạo chuỗi ngẫu nhiên dài 128 ký tự
 
         //tạo session lưu refresh token
         await Session.create({
-            userId: user._id,
+            userId: user.id,
             refreshToken,
             expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL)//thời điểm hết hạn
         });
@@ -84,7 +84,7 @@ export const signIn = async (req, res) => {
         });
 
         //trả access token về cho client qua response body
-        return res.status(200).json({message: `User ${user.displayName} signed in successfully`, accessToken, user: user.toObject()});
+        return res.status(200).json({message: `User ${user.displayName} signed in successfully`, accessToken, user: user.toJSON()});
 
     } catch (error) {
         console.error("Error in signIn:", error);
@@ -98,7 +98,7 @@ export const signOut = async (req, res) => {
         const token = req.cookies?.refreshToken;
 
         if(token){
-            await Session.deleteOne({refreshToken: token});//xóa refresh token trong session (hủy phiên đăng nhập)
+            await Session.destroy({where: {refreshToken: token}});//xóa refresh token trong session (hủy phiên đăng nhập)
 
             //xóa cookie
             res.clearCookie('refreshToken'); //xóa refresh token trên trình duyệt
