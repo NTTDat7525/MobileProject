@@ -98,9 +98,8 @@ export default function UserHome() {
           />
         ) : (
           <>
-            {/* Welcome */}
             <View style={styles.welcomeSection}>
-              <Text style={styles.greeting}>Welcome back!</Text>
+              <Text style={styles.greeting}>Chào mừng!</Text>
               <Text style={styles.name}>{user?.displayName || 'Guest'}</Text>
             </View>
 
@@ -108,19 +107,19 @@ export default function UserHome() {
             <View style={styles.statsRow}>
               <StatTile
                 icon="calendar-check"
-                label="Upcoming"
+                label="Đặt bàn mới"
                 value={stats.upcomingBookings}
                 color="#3b82f6"
               />
               <StatTile
                 icon="check-all"
-                label="Completed"
+                label="Đã hoàn thành"
                 value={stats.completedBookings}
                 color="#10b981"
               />
               <StatTile
                 icon="book-multiple"
-                label="Total"
+                label="Tổng"
                 value={stats.totalBookings}
                 color="#f59e0b"
               />
@@ -129,43 +128,42 @@ export default function UserHome() {
             {/* Quick Actions */}
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Quick Actions</Text>
+                <Text style={styles.sectionTitle}>Thao tác nhanh</Text>
               </View>
               <View style={styles.actionGrid}>
                 <ActionButton
                   icon="plus-circle"
-                  label="New Booking"
+                  label="Đặt bàn"
                   onPress={() => router.push('/user/bookings-create')}
                   color="#ff9e6b"
                 />
                 <ActionButton
                   icon="table-furniture"
-                  label="Browse Tables"
+                  label="Tìm kiếm"
                   onPress={() => router.push('/user/tables')}
                   color="#3b82f6"
                 />
                 <ActionButton
                   icon="history"
-                  label="My Bookings"
+                  label="Lịch sử đặt bàn"
                   onPress={() => router.push('/user/bookings')}
                   color="#8b5cf6"
                 />
                 <ActionButton
                   icon="receipt"
-                  label="My Orders"
+                  label="Lịch sử đặt món"
                   onPress={() => router.push('/user/orders')}
                   color="#10b981"
                 />
               </View>
             </View>
 
-            {/* Recent Bookings */}
             {bookings.length > 0 && (
               <View style={styles.section}>
                 <View style={styles.sectionHeader}>
                   <Text style={styles.sectionTitle}>Recent Bookings</Text>
                   <TouchableOpacity onPress={() => router.push('/user/bookings')}>
-                    <Text style={styles.seeAll}>See all</Text>
+                    <Text style={styles.seeAll}>Xem tất cả</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -182,7 +180,6 @@ export default function UserHome() {
               </View>
             )}
 
-            {/* User Info Card */}
             <View style={styles.section}>
               <View style={styles.infoCard}>
                 <View style={styles.infoRow}>
@@ -208,7 +205,7 @@ export default function UserHome() {
                 onPress={() => router.push('/user/profile')}
               >
                 <MaterialCommunityIcons name="pencil" size={18} color="#fff" />
-                <Text style={styles.editBtnText}>Edit Profile</Text>
+                <Text style={styles.editBtnText}>Chỉnh sửa hồ sơ</Text>
               </TouchableOpacity>
             </View>
           </>

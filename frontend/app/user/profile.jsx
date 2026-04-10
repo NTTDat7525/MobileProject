@@ -46,8 +46,8 @@ export default function UserProfile() {
         phone: userData.phone || '',
       });
     } catch (error) {
-      console.error('Error fetching profile:', error);
-      Alert.alert('Error', 'Failed to load profile');
+      console.error('Lỗi:', error);
+      Alert.alert('Error', 'Lỗi cập nhật thông tin');
     } finally {
       setLoading(false);
     }
@@ -87,10 +87,10 @@ export default function UserProfile() {
       <ScrollView style={styles.content}>
         {/* Account Info */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account Information</Text>
+          <Text style={styles.sectionTitle}>Thông tin tài khoản</Text>
 
           <View style={styles.infoBox}>
-            <Text style={styles.infoLabel}>Username</Text>
+            <Text style={styles.infoLabel}>Tên đăng nhập</Text>
             <Text style={styles.infoValue}>{user?.username}</Text>
           </View>
 
@@ -116,17 +116,17 @@ export default function UserProfile() {
 
         {/* Edit Profile */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Edit Profile</Text>
+          <Text style={styles.sectionTitle}>Thay đổi hồ sơ</Text>
 
           <FormInput
-            label="Display Name"
+            label="Tên hiển thị"
             placeholder="Your name"
             value={formData.displayName}
             onChangeText={(text) => setFormData({ ...formData, displayName: text })}
           />
 
           <FormInput
-            label="Phone"
+            label="Số điện thoại"
             placeholder="+84..."
             value={formData.phone}
             onChangeText={(text) => setFormData({ ...formData, phone: text })}
@@ -134,8 +134,8 @@ export default function UserProfile() {
           />
 
           <FormInput
-            label="Bio"
-            placeholder="Tell us about yourself"
+            label="Giới thiệu"
+            placeholder="Mô tả 1 vài điều về bản thân"
             value={formData.bio}
             onChangeText={(text) => setFormData({ ...formData, bio: text })}
             multiline
@@ -143,7 +143,7 @@ export default function UserProfile() {
 
           <View style={styles.buttons}>
             <Button
-              title="Cancel"
+              title="Hủy"
               onPress={() => {
                 setFormData({
                   displayName: user.displayName || '',
@@ -156,7 +156,7 @@ export default function UserProfile() {
               disabled={updating}
             />
             <Button
-              title="Save Changes"
+              title="Lưu thay đổi"
               onPress={handleUpdate}
               disabled={updating}
               style={styles.submitBtn}
@@ -169,12 +169,12 @@ export default function UserProfile() {
           <Text style={styles.sectionTitle}>Account Security</Text>
 
           <Button
-            title="Logout"
+            title="Đăng xuất"
             onPress={() => {
-              Alert.alert('Logout', 'Are you sure?', [
-                { text: 'Cancel' },
+              Alert.alert('Đăng xuất', 'Bạn chắc chắn muốn đăng xuất?', [
+                { text: 'Hủy' },
                 {
-                  text: 'Logout',
+                  text: 'Xác nhận',
                   onPress: async () => {
                     await AsyncStorage.removeItem('accessToken');
                     await AsyncStorage.removeItem('refreshToken');
