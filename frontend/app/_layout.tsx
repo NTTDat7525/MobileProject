@@ -1,30 +1,24 @@
-// import { Stack } from "expo-router";
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import useAuthStore from '@/src/store/authStore';
 
-// export default function RootLayout() {
-//   return (
-//     <Stack
-//       screenOptions={{
-//         headerShown: false
-//       }}
-//     >
-//       <Stack.Screen
-//         name="screens/Signin"
-//         options={{ headerShown: false }}
-//       />
-//       <Stack.Screen
-//         name="screens/Signup"
-//         options={{ headerShown: false }}
-//       />
+export default function RootLayout() {
+  const loadFromStorage = useAuthStore((state) => state.loadFromStorage);
 
-//       <Stack.Screen
-//         name="user"
-//         options={{ headerShown: false }}
-//       />
+  useEffect(() => {
+    loadFromStorage();
+  }, []);
 
-//       <Stack.Screen
-//         name="admin"
-//         options={{ headerShown: false }}
-//       />
-//     </Stack>
-//   );
-// }
+  return (
+    <>
+      <StatusBar style="dark" backgroundColor="#FFFFFF" />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(user)" />
+        <Stack.Screen name="(admin)" />
+      </Stack>
+    </>
+  );
+}

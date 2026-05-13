@@ -8,13 +8,13 @@ const Table = sequelize.define('Table', {
         primaryKey: true,
         allowNull: false
     },
-
-    tableNumber: {
+    
+    tableName: {
         type: DataTypes.STRING(50),
         allowNull: false,
         unique: true
     },
-
+//số lượng khách tối đa
     capacity: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -24,59 +24,26 @@ const Table = sequelize.define('Table', {
         }
     },
 
-    type: {
-        type: DataTypes.ENUM('standard', 'vip', 'bar', 'outdoor'),
-        defaultValue: 'standard'
-    },
-
     location: {
-        type: DataTypes.ENUM('indoor', 'outdoor', 'terrace'),
+        type: DataTypes.ENUM('Ngoài trời', 'Trong nhà', 'Sân thượng'),
         allowNull: false
     },
 
-    description: {
-        type: DataTypes.STRING(500),
-        defaultValue: ""
+    image :{
+        type: DataTypes.STRING(255),
+        defaultValue: null
     },
 
     status: {
-        type: DataTypes.ENUM('available', 'occupied', 'reserved', 'maintenance'),
-        defaultValue: 'available'
+        type: DataTypes.ENUM('Có sẵn', 'Đang sử dụng', 'Đã đặt', 'Bảo trì'),
+        defaultValue: 'Có sẵn'
     },
 
-    currentBookingId: {
-        type: DataTypes.UUID,
-        defaultValue: null
-    },
-
-    features: {
-        type: DataTypes.JSON,
-        defaultValue: {
-            hasWindow: false,
-            hasView: false,
-            isHighChairs: false,
-            wheelchair: false
-        }
-    },
-
-    surchargePercentage: {
-        type: DataTypes.DECIMAL(5, 2),
-        defaultValue: 0,
-        validate: {
-            min: 0,
-            max: 50
-        }
-    },
-
-    lastCleaned: {
-        type: DataTypes.DATE,
-        defaultValue: null
-    },
-
-    maintenanceNotes: {
-        type: DataTypes.STRING(500),
-        defaultValue: ""
-    },
+    price :{
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue: 0.00
+     },
 
     createdAt: {
         type: DataTypes.DATE,
@@ -90,20 +57,6 @@ const Table = sequelize.define('Table', {
 }, {
     tableName: 'Tables',
     timestamps: true,
-    indexes: [
-        {
-            fields: ['status']
-        },
-        {
-            fields: ['capacity']
-        },
-        {
-            fields: ['type']
-        },
-        {
-            fields: ['currentBookingId']
-        }
-    ]
 });
 
 export default Table;

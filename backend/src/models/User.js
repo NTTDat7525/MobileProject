@@ -32,11 +32,6 @@ const User = sequelize.define('User', {
         }
     },
 
-    displayName: {
-        type: DataTypes.STRING(150),
-        allowNull: false
-    },
-
     bio: {
         type: DataTypes.STRING(500),
         defaultValue: ""
@@ -64,17 +59,6 @@ const User = sequelize.define('User', {
 }, {
     tableName: 'Users',
     timestamps: true,
-    indexes: [
-        {
-            fields: ['username']
-        },
-        {
-            fields: ['email']
-        },
-        {
-            fields: ['role']
-        }
-    ]
 });
 
 export default User;

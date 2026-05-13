@@ -34,7 +34,7 @@ export const connectDB = async () => {
         console.log('Connected to MySQL successfully!');
         
         // Đồng bộ hóa tất cả models
-        await sequelize.sync({ alter: true });
+        await sequelize.sync();
         console.log('Database synchronized!');
         
         return sequelize;

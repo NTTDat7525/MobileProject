@@ -20,8 +20,17 @@ const Booking = sequelize.define('Booking', {
         }
     },
 
-    guestName: {
-        type: DataTypes.STRING(150),
+    tableId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Table,
+            key: 'id'
+        }
+    },
+
+    time: {
+        type: DataTypes.DATE,
         allowNull: false
     },
 
@@ -47,82 +56,32 @@ const Booking = sequelize.define('Booking', {
         }
     },
 
-    tableId: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-            model: Table,
-            key: 'id'
-        }
-    },
-
-    bookingDate: {
-        type: DataTypes.DATE,
-        allowNull: false
-    },
-
-    checkInTime: {
-        type: DataTypes.DATE,
-        defaultValue: null
-    },
-
-    checkOutTime: {
-        type: DataTypes.DATE,
-        defaultValue: null
-    },
-
-    estimatedDuration: {
-        type: DataTypes.INTEGER,
-        defaultValue: 120,
-        validate: {
-            min: 30,
-            max: 480
-        }
-    },
-
     specialRequests: {
         type: DataTypes.STRING(500),
         defaultValue: ""
     },
 
-    dietaryRestrictions: {
-        type: DataTypes.JSON,
-        defaultValue: []
-    },
-
-    occasion: {
-        type: DataTypes.ENUM('regular', 'birthday', 'anniversary', 'business', 'other'),
-        defaultValue: 'regular'
-    },
-
     status: {
-        type: DataTypes.ENUM('pending', 'confirmed', 'checked-in', 'completed', 'cancelled'),
-        defaultValue: 'pending'
+        type: DataTypes.ENUM('đang chờ', 'đã xác nhận', 'đã check-in', 'hoàn thành', 'đã hủy'),
+        defaultValue: 'đang chờ'
     },
 
-    cancellationReason: {
-        type: DataTypes.STRING(500),
-        defaultValue: null
+    totalPrice: {
+        type: DataTypes.DECIMAL(10, 2),
+        defaultValue: 0,
+        validate: {
+            min: 0
+        }
     },
 
-    cancellationDate: {
-        type: DataTypes.DATE,
-        defaultValue: null
+    PaymentMethod:{
+        type: DataTypes.ENUM('tiền mặt','chuyển khoản ngân hàng'),
+        defaultValue: 'tiền mặt'
     },
 
-    orderId: {
-        type: DataTypes.UUID,
-        defaultValue: null
-    },
-
-    internalNotes: {
-        type: DataTypes.STRING(500),
-        defaultValue: ""
-    },
-
-    reminderSent: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
+    paymentStatus: {
+        type: DataTypes.ENUM('chưa thanh toán', 'đã thanh toán'),
+        defaultValue: 'chưa thanh toán'
     },
 
     createdAt: {
@@ -137,23 +96,14 @@ const Booking = sequelize.define('Booking', {
 }, {
     tableName: 'Bookings',
     timestamps: true,
-    indexes: [
-        {
-            fields: ['userId']
-        },
-        {
-            fields: ['tableId']
-        },
-        {
-            fields: ['status']
-        },
-        {
-            fields: ['bookingDate']
-        }
-    ]
 });
 
-Booking.belongsTo(User, { foreignKey: 'userId', as: 'user' });
-Booking.belongsTo(Table, { foreignKey: 'tableId', as: 'table' });
+Booking.belongsTo(User, { foreignKey: 'userId', as: 'User' });
+Booking.belongsTo(Table, {
+    foreignKey: 'tableId',
+    as: 'Table',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+});
 
 export default Booking;

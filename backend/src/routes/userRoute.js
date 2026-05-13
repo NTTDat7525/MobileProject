@@ -1,36 +1,28 @@
 import express from 'express';
 import {
     authMe,
-    getUserProfile,
     updateProfile,
-    getTables,
-    getTableById,
-    createBooking,
     getUserBookings,
+    createBooking,
     getBookingById,
     updateBooking,
     cancelBooking,
-    getUserOrders,
-    getOrderById
+    getUserTables,
+    getTableById,
 } from '../controllers/userController.js';
-import { protectedRoute } from '../middlewares/authMiddleware.js';
 
 const route = express.Router();
 
-route.get('/me', protectedRoute, authMe);
-route.get('/profile/:userId', protectedRoute, getUserProfile);
-route.put('/profile', protectedRoute, updateProfile);
+route.get('/me', authMe);
+route.put('/profile', updateProfile);
 
-route.get("/tables", getTables);
-route.get("/tables/:tableId", getTableById);
+route.get('/bookings', getUserBookings);
+route.post('/bookings', createBooking);
+route.get('/bookings/:id', getBookingById);
+route.put('/bookings/:id/cancel', cancelBooking);
+route.put('/bookings/:id', updateBooking);
 
-route.post("/bookings", protectedRoute, createBooking);
-route.get("/bookings", protectedRoute, getUserBookings);
-route.get("/bookings/:bookingId", protectedRoute, getBookingById);
-route.put("/bookings/:bookingId", protectedRoute, updateBooking);
-route.put("/bookings/:bookingId/cancel", protectedRoute, cancelBooking);
-
-route.get("/orders", protectedRoute, getUserOrders);
-route.get("/orders/:orderId", protectedRoute, getOrderById);
+route.get('/tables', getUserTables);
+route.get('/tables/:id', getTableById);
 
 export default route;
