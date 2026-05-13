@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing, BorderRadius } from '../../constants/spacing';
 import { FontSize, FontWeight } from '../../constants/typography';
@@ -18,6 +18,7 @@ export default function Button({
   disabled = false,
   style,
   textStyle,
+  icon,
 }) {
   const isDisabled = disabled || loading;
 
@@ -40,9 +41,12 @@ export default function Button({
           size="small"
         />
       ) : (
-        <Text style={[styles.text, styles[`text_${variant}`], textStyle]}>
-          {title}
-        </Text>
+        <>
+          {icon ? <View style={styles.icon}>{icon}</View> : null}
+          <Text style={[styles.text, styles[`text_${variant}`], textStyle]}>
+            {title}
+          </Text>
+        </>
       )}
     </TouchableOpacity>
   );
@@ -52,15 +56,20 @@ const styles = StyleSheet.create({
   base: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     flexDirection: 'row',
+    shadowColor: Colors.primaryDark,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 2,
   },
   // ─── Variants ───────────────────────────────────
   primary: {
     backgroundColor: Colors.primary,
   },
   secondary: {
-    backgroundColor: Colors.surfaceSecondary,
+    backgroundColor: Colors.primaryLight,
   },
   outline: {
     backgroundColor: 'transparent',
@@ -77,17 +86,17 @@ const styles = StyleSheet.create({
   size_sm: {
     paddingVertical: Spacing.xs,
     paddingHorizontal: Spacing.md,
-    height: 36,
+    minHeight: 38,
   },
   size_md: {
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.lg,
-    height: 48,
+    minHeight: 48,
   },
   size_lg: {
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.xl,
-    height: 56,
+    minHeight: 56,
   },
   // ─── Text ────────────────────────────────────────
   text: {
@@ -95,10 +104,11 @@ const styles = StyleSheet.create({
     fontWeight: FontWeight.semibold,
   },
   text_primary: { color: Colors.white },
-  text_secondary: { color: Colors.text },
+  text_secondary: { color: Colors.primaryDark },
   text_outline: { color: Colors.primary },
   text_danger: { color: Colors.white },
   text_ghost: { color: Colors.primary },
+  icon: { marginRight: Spacing.xs },
   // ─── State ───────────────────────────────────────
   disabled: { opacity: 0.45 },
 });

@@ -14,8 +14,9 @@ import { signup } from '@/src/services/auth.service';
 import Input from '@/src/components/common/Input';
 import Button from '@/src/components/common/Button';
 import { Colors } from '@/src/constants/colors';
-import { Spacing } from '@/src/constants/spacing';
+import { Spacing, BorderRadius } from '@/src/constants/spacing';
 import { FontSize, FontWeight } from '@/src/constants/typography';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -86,12 +87,14 @@ export default function SignupScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.header}>
-            <Text style={styles.title}>Tạo tài khoản</Text>
-            <Text style={styles.subtitle}>Điền thông tin để đăng ký</Text>
+          <View style={styles.brandMark}>
+            <Ionicons name="sparkles" size={32} color={Colors.white} />
           </View>
+          <Text style={styles.brand}>Golden Spoons</Text>
+          <Text style={styles.subtitle}>Tạo tài khoản để đặt bàn và theo dõi lịch hẹn của bạn.</Text>
 
-          <View style={styles.form}>
+          <View style={styles.formCard}>
+            <Text style={styles.title}>Đăng ký</Text>
 
             <Input
               label="Tên đăng nhập"
@@ -157,24 +160,50 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.xl,
     paddingBottom: Spacing.xl,
+    justifyContent: 'center',
   },
-  header: {
-    marginBottom: Spacing.xl,
+  brandMark: {
+    width: 72,
+    height: 72,
+    borderRadius: 22,
+    alignSelf: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.primary,
+    marginBottom: Spacing.md,
   },
-  title: {
+  brand: {
     fontSize: FontSize.xxl,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.heavy,
     color: Colors.text,
+    textAlign: 'center',
     marginBottom: Spacing.xs,
   },
   subtitle: {
-    fontSize: FontSize.base,
+    fontSize: FontSize.sm,
     color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: Spacing.xl,
   },
-
-  form: {
-    marginBottom: Spacing.lg
+  formCard: {
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.07,
+    shadowRadius: 24,
+    elevation: 5,
+    marginBottom: Spacing.lg,
+  },
+  title: {
+    fontSize: FontSize.xl,
+    fontWeight: FontWeight.bold,
+    color: Colors.text,
+    marginBottom: Spacing.lg,
   },
 
   halfInput: {

@@ -1,12 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Colors } from '@/src/constants/colors';
 import { FontSize } from '@/src/constants/typography';
-import { Text } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-
-function TabIcon({ icon }) {
-  return <Text style={{ fontSize: 20 }}>{icon}</Text>;
-}
 
 export default function AdminLayout() {
   return (
@@ -19,11 +14,13 @@ export default function AdminLayout() {
           backgroundColor: Colors.white,
           borderTopColor: Colors.border,
           borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
+          height: 66,
+          paddingBottom: 10,
+          paddingTop: 6,
         },
         tabBarLabelStyle: {
           fontSize: FontSize.xs,
+          fontWeight: '600',
         },
       }}
     >

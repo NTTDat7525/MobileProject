@@ -14,11 +14,13 @@ export default function UserLayout() {
           backgroundColor: Colors.white,
           borderTopColor: Colors.border,
           borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
+          height: 66,
+          paddingBottom: 10,
+          paddingTop: 6,
         },
         tabBarLabelStyle: {
           fontSize: FontSize.xs,
+          fontWeight: '600',
         },
       }}
     >
@@ -67,9 +69,4 @@ export default function UserLayout() {
       <Tabs.Screen name="payment"      options={{ href: null }} />
     </Tabs>
   );
-}
-
-function TabIcon({ icon }) {
-  const { Text } = require('react-native');
-  return <Text style={{ fontSize: 20 }}>{icon}</Text>;
 }

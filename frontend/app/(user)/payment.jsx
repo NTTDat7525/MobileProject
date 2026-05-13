@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,6 +12,8 @@ import { getBookingById } from '@/src/services/booking.service';
 import Badge from '@/src/components/common/Badge';
 import Card from '@/src/components/common/Card';
 import Button from '@/src/components/common/Button';
+import LoadingState from '@/src/components/common/LoadingState';
+import EmptyState from '@/src/components/common/EmptyState';
 import { Colors } from '@/src/constants/colors';
 import { Spacing, BorderRadius } from '@/src/constants/spacing';
 import { FontSize, FontWeight } from '@/src/constants/typography';
@@ -54,20 +55,16 @@ export default function PaymentScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.center}>
-        <ActivityIndicator color={Colors.primary} size="large" />
-        <Text style={styles.loadingText}>Đang tải...</Text>
+      <SafeAreaView style={styles.safe}>
+        <LoadingState message="Đang tải thanh toán..." />
       </SafeAreaView>
     );
   }
 
   if (error || !booking) {
     return (
-      <SafeAreaView style={styles.center}>
-        <Text style={styles.errorText}>{error || 'Không tìm thấy thông tin thanh toán'}</Text>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.link}>Quay lại</Text>
-        </TouchableOpacity>
+      <SafeAreaView style={styles.safe}>
+        <EmptyState tone="error" title="Không có thông tin thanh toán" message={error || 'Không tìm thấy thông tin thanh toán.'} actionLabel="Quay lại" onAction={() => router.back()} />
       </SafeAreaView>
     );
   }
@@ -78,7 +75,8 @@ export default function PaymentScreen() {
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Text style={styles.backText}>← Quay lại</Text>
+          <Ionicons name="chevron-back" size={20} color={Colors.primary} />
+          <Text style={styles.backText}>Quay lại</Text>
         </TouchableOpacity>
 
         <Text style={styles.pageTitle}>Thanh toán</Text>
@@ -190,11 +188,11 @@ const styles = StyleSheet.create({
   loadingText: { marginTop: Spacing.sm, color: Colors.textSecondary },
   errorText: { fontSize: FontSize.base, color: Colors.error, textAlign: 'center' },
   link: { fontSize: FontSize.base, color: Colors.primary, marginTop: Spacing.md },
-  backBtn: { marginBottom: Spacing.sm },
+  backBtn: { marginBottom: Spacing.sm, flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start' },
   backText: { fontSize: FontSize.base, color: Colors.primary, fontWeight: FontWeight.medium },
   pageTitle: {
-    fontSize: FontSize.xl,
-    fontWeight: FontWeight.bold,
+    fontSize: FontSize.xxl,
+    fontWeight: FontWeight.heavy,
     color: Colors.text,
     marginBottom: Spacing.lg,
   },
@@ -208,8 +206,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.md,
     padding: Spacing.xl,
-    backgroundColor: Colors.primaryLight,
-    borderColor: Colors.primary,
+    backgroundColor: Colors.white,
+    borderColor: Colors.primaryLight,
   },
   amountLabel: { fontSize: FontSize.sm, color: Colors.primaryDark },
   amountValue: {

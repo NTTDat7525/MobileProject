@@ -41,9 +41,11 @@ export default function Badge({ label, style }) {
 const styles = StyleSheet.create({
   badge: {
     paddingHorizontal: Spacing.sm,
-    paddingVertical: 3,
+    paddingVertical: 5,
     borderRadius: BorderRadius.full,
     alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: 'rgba(17,24,39,0.04)',
   },
   text: {
     fontSize: FontSize.xs,

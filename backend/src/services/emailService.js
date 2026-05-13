@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 import validator from 'validator';
 
 // Cấu hình transporter cho gửi email
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
     secure: process.env.SMTP_SECURE === 'true', // true cho 465, false cho 587

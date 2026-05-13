@@ -4,8 +4,6 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  ActivityIndicator,
-  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -13,6 +11,8 @@ import { getBookingById } from '@/src/services/booking.service';
 import Badge from '@/src/components/common/Badge';
 import Card from '@/src/components/common/Card';
 import Button from '@/src/components/common/Button';
+import LoadingState from '@/src/components/common/LoadingState';
+import EmptyState from '@/src/components/common/EmptyState';
 import { Colors } from '@/src/constants/colors';
 import { Spacing } from '@/src/constants/spacing';
 import { FontSize, FontWeight } from '@/src/constants/typography';
@@ -58,20 +58,16 @@ export default function ConfirmationScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.center}>
-        <ActivityIndicator color={Colors.primary} size="large" />
-        <Text style={styles.loadingText}>Đang tải thông tin...</Text>
+      <SafeAreaView style={styles.safe}>
+        <LoadingState message="Đang tải thông tin đặt bàn..." />
       </SafeAreaView>
     );
   }
 
   if (error || !booking) {
     return (
-      <SafeAreaView style={styles.center}>
-        <Text style={styles.errorText}>{error || 'Không tìm thấy đặt bàn'}</Text>
-        <TouchableOpacity onPress={() => router.replace('/(user)/history')}>
-          <Text style={styles.link}>Xem lịch sử đặt bàn</Text>
-        </TouchableOpacity>
+      <SafeAreaView style={styles.safe}>
+        <EmptyState tone="error" title="Không tìm thấy đặt bàn" message={error || 'Thông tin đặt bàn không còn khả dụng.'} actionLabel="Xem lịch sử" onAction={() => router.replace('/(user)/history')} />
       </SafeAreaView>
     );
   }
@@ -80,6 +76,9 @@ export default function ConfirmationScreen() {
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.successBanner}>
+          <View style={styles.successIcon}>
+            <Ionicons name="checkmark" size={30} color={Colors.white} />
+          </View>
           <Text style={styles.successTitle}>Xác nhận thông tin!</Text>
           <Text style={styles.successSub}>Mã đặt bàn: #{bookingId?.slice(0, 8)}</Text>
         </View>
@@ -171,9 +170,20 @@ const styles = StyleSheet.create({
   successBanner: {
     alignItems: 'center',
     padding: Spacing.xl,
-    backgroundColor: Colors.successLight,
+    backgroundColor: Colors.white,
     borderRadius: 16,
     marginBottom: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.successLight,
+  },
+  successIcon: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.success,
+    marginBottom: Spacing.sm,
   },
   successTitle: { fontSize: FontSize.lg, fontWeight: FontWeight.bold, color: Colors.success },
   successSub: { fontSize: FontSize.sm, color: Colors.success, marginTop: 4 },

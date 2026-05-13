@@ -5,7 +5,6 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  ActivityIndicator,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,6 +12,8 @@ import { useRouter } from 'expo-router';
 import { getUserBookings, cancelBooking } from '@/src/services/booking.service';
 import Badge from '@/src/components/common/Badge';
 import Card from '@/src/components/common/Card';
+import LoadingState from '@/src/components/common/LoadingState';
+import EmptyState from '@/src/components/common/EmptyState';
 import { Colors } from '@/src/constants/colors';
 import { Spacing, BorderRadius } from '@/src/constants/spacing';
 import { FontSize, FontWeight } from '@/src/constants/typography';
@@ -176,17 +177,9 @@ export default function HistoryScreen() {
       />
 
       {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator color={Colors.primary} size="large" />
-          <Text style={styles.loadingText}>Đang tải...</Text>
-        </View>
+        <LoadingState message="Đang tải lịch sử đặt bàn..." />
       ) : error ? (
-        <View style={styles.center}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity onPress={loadBookings}>
-            <Text style={styles.retryText}>Thử lại</Text>
-          </TouchableOpacity>
-        </View>
+        <EmptyState tone="error" title="Không tải được lịch sử" message={error} actionLabel="Thử lại" onAction={loadBookings} />
       ) : (
         <FlatList
           data={filteredBookings}
@@ -195,9 +188,7 @@ export default function HistoryScreen() {
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
-            <View style={styles.center}>
-              <Text style={styles.emptyText}>Không có đặt bàn nào</Text>
-            </View>
+            <EmptyState icon="calendar-outline" title="Chưa có đặt bàn" message="Các lượt đặt bàn của bạn sẽ xuất hiện tại đây." />
           }
         />
       )}
@@ -215,7 +206,7 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.lg,
     paddingBottom: Spacing.sm,
   },
-  pageTitle: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, color: Colors.text },
+  pageTitle: { fontSize: FontSize.xxl, fontWeight: FontWeight.heavy, color: Colors.text },
   filterList: { paddingHorizontal: Spacing.lg, gap: Spacing.sm, paddingVertical: Spacing.sm },
   chip: {
     paddingHorizontal: Spacing.md,
@@ -230,9 +221,8 @@ const styles = StyleSheet.create({
   chipTextActive: { color: Colors.primaryDark, fontWeight: FontWeight.semibold },
   list: {
     padding: Spacing.lg,
-    gap: Spacing.sm,
+    gap: Spacing.md,
     paddingBottom: Spacing.xxl,
-    height: 650,
   },
   
   bookingCard: { marginBottom: 0 },
@@ -242,7 +232,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.xs,
   },
-  tableName: { fontSize: FontSize.md, fontWeight: FontWeight.semibold, color: Colors.text },
+  tableName: { fontSize: FontSize.lg, fontWeight: FontWeight.bold, color: Colors.text, flex: 1, marginRight: Spacing.sm },
   tableLocation: { fontSize: FontSize.sm, color: Colors.textSecondary, marginBottom: Spacing.sm },
   infoRow: { flexDirection: 'column', gap: Spacing.md, marginBottom: Spacing.sm },
   infoItem: { fontSize: FontSize.sm, color: Colors.textSecondary },
@@ -276,8 +266,4 @@ const styles = StyleSheet.create({
   },
   cancelBtnText: { fontSize: FontSize.sm, color: Colors.error, fontWeight: FontWeight.semibold },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: Spacing.xl },
-  loadingText: { marginTop: Spacing.sm, color: Colors.textSecondary },
-  errorText: { fontSize: FontSize.base, color: Colors.error, textAlign: 'center' },
-  retryText: { fontSize: FontSize.base, color: Colors.primary, marginTop: Spacing.md },
-  emptyText: { fontSize: FontSize.base, color: Colors.textSecondary },
 });

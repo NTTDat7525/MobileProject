@@ -5,11 +5,10 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  ActivityIndicator,
   Alert,
   Modal,
   ScrollView,
-  TextInput,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -21,12 +20,13 @@ import {
 import Badge from '@/src/components/common/Badge';
 import Input from '@/src/components/common/Input';
 import Button from '@/src/components/common/Button';
+import LoadingState from '@/src/components/common/LoadingState';
+import EmptyState from '@/src/components/common/EmptyState';
 import { Colors } from '@/src/constants/colors';
 import { Spacing, BorderRadius } from '@/src/constants/spacing';
 import { FontSize, FontWeight } from '@/src/constants/typography';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
-import { Image } from 'react-native';
 
 const LOCATIONS = ['Trong nhà', 'Ngoài trời', 'Sân thượng'];
 const STATUSES = ['Có sẵn', 'Đang sử dụng', 'Đã đặt', 'Bảo trì'];
@@ -213,21 +213,15 @@ export default function TablesScreen() {
       <View style={styles.header}>
         <Text style={styles.pageTitle}>Quản lý bàn</Text>
         <TouchableOpacity style={styles.addBtn} onPress={openAdd}>
-          <Text style={styles.addBtnText}>+ Thêm bàn</Text>
+          <Ionicons name="add" size={18} color={Colors.white} />
+          <Text style={styles.addBtnText}>Thêm bàn</Text>
         </TouchableOpacity>
       </View>
 
       {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator color={Colors.primary} size="large" />
-        </View>
+        <LoadingState message="Đang tải danh sách bàn..." />
       ) : error ? (
-        <View style={styles.center}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity onPress={loadTables}>
-            <Text style={styles.retryText}>Thử lại</Text>
-          </TouchableOpacity>
-        </View>
+        <EmptyState tone="error" title="Không tải được bàn" message={error} actionLabel="Thử lại" onAction={loadTables} />
       ) : (
         <FlatList
           data={tables}
@@ -237,9 +231,7 @@ export default function TablesScreen() {
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           ListEmptyComponent={
-            <View style={styles.center}>
-              <Text style={styles.emptyText}>Chưa có bàn nào</Text>
-            </View>
+            <EmptyState title="Chưa có bàn nào" message="Thêm bàn đầu tiên để bắt đầu nhận đặt chỗ." actionLabel="Thêm bàn" onAction={openAdd} />
           }
         />
       )}
@@ -358,19 +350,22 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  pageTitle: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, color: Colors.text },
+  pageTitle: { fontSize: FontSize.xxl, fontWeight: FontWeight.heavy, color: Colors.text },
   addBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     backgroundColor: Colors.primary,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs + 2,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.full,
   },
   addBtnText: { fontSize: FontSize.sm, color: Colors.white, fontWeight: FontWeight.semibold },
   list: { padding: Spacing.md, paddingBottom: Spacing.xxl },
   tableRow: {
     flexDirection: 'row',
     backgroundColor: Colors.white,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,

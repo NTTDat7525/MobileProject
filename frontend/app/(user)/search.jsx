@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  ActivityIndicator,
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,6 +12,8 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { getTables } from '@/src/services/table.service';
 import Badge from '@/src/components/common/Badge';
 import Card from '@/src/components/common/Card';
+import LoadingState from '@/src/components/common/LoadingState';
+import EmptyState from '@/src/components/common/EmptyState';
 import { Colors } from '@/src/constants/colors';
 import { Spacing, BorderRadius } from '@/src/constants/spacing';
 import { FontSize, FontWeight } from '@/src/constants/typography';
@@ -133,17 +134,9 @@ export default function SearchScreen() {
       </View>
 
       {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator color={Colors.primary} size="large" />
-          <Text style={styles.loadingText}>Đang tải...</Text>
-        </View>
+        <LoadingState message="Đang tìm bàn phù hợp..." />
       ) : error ? (
-        <View style={styles.center}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity onPress={loadTables}>
-            <Text style={styles.retryText}>Thử lại</Text>
-          </TouchableOpacity>
-        </View>
+        <EmptyState tone="error" title="Không tải được danh sách bàn" message={error} actionLabel="Thử lại" onAction={loadTables} />
       ) : (
         <FlatList
           data={filteredTables}
@@ -152,9 +145,7 @@ export default function SearchScreen() {
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
-            <View style={styles.center}>
-              <Text style={styles.emptyText}>Không có bàn phù hợp</Text>
-            </View>
+            <EmptyState title="Không có bàn phù hợp" message="Hãy thử chọn khu vực khác hoặc quay lại sau." />
           }
         />
       )}
@@ -169,7 +160,7 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.lg,
     paddingBottom: Spacing.sm,
   },
-  pageTitle: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, color: Colors.text },
+  pageTitle: { fontSize: FontSize.xxl, fontWeight: FontWeight.heavy, color: Colors.text },
   pageSubtitle: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 2 },
   filterContainer: { paddingVertical: Spacing.sm },
   filterList: { paddingHorizontal: Spacing.lg, gap: Spacing.sm },
@@ -187,14 +178,14 @@ const styles = StyleSheet.create({
   },
   filterChipText: { fontSize: FontSize.sm, color: Colors.textSecondary },
   filterChipTextActive: { color: Colors.primaryDark, fontWeight: FontWeight.semibold },
-  list: { padding: Spacing.lg, gap: Spacing.sm, paddingBottom: Spacing.xxl },
+  list: { padding: Spacing.lg, gap: Spacing.md, paddingBottom: Spacing.xxl },
   tableCard: { marginBottom: 0, padding: 0, overflow: 'hidden' },
   unavailable: { opacity: 0.6 },
-  tableImage: { width: '100%', height: 140, borderTopLeftRadius: 12, borderTopRightRadius: 12 },
+  tableImage: { width: '100%', height: 156, borderTopLeftRadius: 12, borderTopRightRadius: 12 },
   imagePlaceholder: {
     width: '100%',
-    height: 100,
-    backgroundColor: Colors.surface,
+    height: 126,
+    backgroundColor: Colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -206,12 +197,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.sm,
   },
-  tableName: { fontSize: FontSize.md, fontWeight: FontWeight.semibold, color: Colors.text },
+  tableName: { fontSize: FontSize.lg, fontWeight: FontWeight.bold, color: Colors.text, flex: 1, marginRight: Spacing.sm },
   tableDetails: { gap: 4 },
   detail: { fontSize: FontSize.sm, color: Colors.textSecondary },
   price: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.bold,
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.heavy,
     color: Colors.primary,
     marginTop: Spacing.xs,
   },
@@ -222,8 +213,4 @@ const styles = StyleSheet.create({
     fontWeight: FontWeight.medium,
   },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: Spacing.xl },
-  loadingText: { marginTop: Spacing.sm, color: Colors.textSecondary },
-  errorText: { fontSize: FontSize.base, color: Colors.error, textAlign: 'center' },
-  retryText: { fontSize: FontSize.base, color: Colors.primary, marginTop: Spacing.md },
-  emptyText: { fontSize: FontSize.base, color: Colors.textSecondary },
 });

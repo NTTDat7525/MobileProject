@@ -6,15 +6,12 @@ import {
   ScrollView,
   Image,
   Animated,
-  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '@/src/constants/colors';
 import { Spacing } from '@/src/constants/spacing';
 import { FontSize, FontWeight } from '@/src/constants/typography';
 import Ionicons from '@expo/vector-icons/Ionicons';
-
-const { width } = Dimensions.get('window');
 
 const banners = [
   'https://images.unsplash.com/photo-1555396273-367ea4eb4db5',
@@ -49,11 +46,13 @@ export default function HomeScreen() {
 
           <View style={styles.overlay}>
             <Text style={styles.brand}>Golden Spoons</Text>
+            <Text style={styles.heroText}>Không gian ẩm thực hiện đại cho mọi cuộc hẹn.</Text>
           </View>
         </Animated.View>
 
         <View style={styles.section}>
-          <Text style={styles.title}>Giới thiệu</Text>
+          <Text style={styles.kicker}>Nhà hàng đặt bàn online</Text>
+          <Text style={styles.title}>Chọn bàn đẹp, đến đúng giờ, thưởng thức trọn vị</Text>
           <Text style={styles.text}>
             Golden Spoons là nhà hàng ẩm thực cao cấp mang phong cách hiện đại
             kết hợp tinh hoa ẩm thực Á – Âu. Chúng tôi mang đến trải nghiệm sang
@@ -107,19 +106,38 @@ const styles = StyleSheet.create({
 
   banner: {
     width: '100%',
-    height: 240,
+    height: 260,
     resizeMode: 'cover',
   },
 
   overlay: {
     position: 'absolute',
-    bottom: 20,
-    left: 20,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.xl,
+    paddingTop: Spacing.xxl,
+    backgroundColor: 'rgba(17,24,39,0.35)',
+  },
+  heroText: {
+    maxWidth: 280,
+    marginTop: Spacing.xs,
+    fontSize: FontSize.sm,
+    lineHeight: 20,
+    color: Colors.white,
+  },
+  kicker: {
+    fontSize: FontSize.xs,
+    fontWeight: FontWeight.bold,
+    color: Colors.primary,
+    textTransform: 'uppercase',
+    marginBottom: Spacing.xs,
   },
 
   brand: {
-    fontSize: FontSize.xl,
-    fontWeight: FontWeight.bold,
+    fontSize: FontSize.xxl,
+    fontWeight: FontWeight.heavy,
     color: '#fff',
   },
 
@@ -128,10 +146,10 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: FontSize.lg,
+    fontSize: FontSize.xl,
     fontWeight: FontWeight.bold,
     color: Colors.text,
-    marginBottom: 6,
+    marginBottom: Spacing.sm,
   },
 
   text: {
@@ -143,29 +161,32 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: Spacing.lg,
     backgroundColor: Colors.white,
-    padding: Spacing.md,
-    borderRadius: 12,
+    padding: Spacing.lg,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: Colors.border,
     marginBottom: Spacing.md,
   },
 
   cardTitle: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
-    marginBottom: 10,
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
+    marginBottom: Spacing.md,
+    color: Colors.text,
   },
 
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
+    minHeight: 28,
   },
 
   rowText: {
     marginLeft: 8,
     fontSize: FontSize.sm,
     color: Colors.text,
+    flex: 1,
   },
 
 });

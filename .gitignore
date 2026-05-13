@@ -2,3 +2,7 @@
 /expo/
 /node_modules/
 /.expo/
+
+backend/.env
+.env
+

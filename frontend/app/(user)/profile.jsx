@@ -17,6 +17,7 @@ import Card from '@/src/components/common/Card';
 import { Colors } from '@/src/constants/colors';
 import { Spacing, BorderRadius } from '@/src/constants/spacing';
 import { FontSize, FontWeight } from '@/src/constants/typography';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -69,9 +70,7 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.avatarSection}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {(user?.username ?? '?')[0].toUpperCase()}
-            </Text>
+            <Text style={styles.avatarText}>{(user?.username ?? '?')[0].toUpperCase()}</Text>
           </View>
           <Text style={styles.userName}>{user?.username ?? '–'}</Text>
           <Text style={styles.userEmail}>{user?.email ?? '–'}</Text>
@@ -144,8 +143,9 @@ export default function ProfileScreen() {
             style={styles.actionItem}
             onPress={() => router.push('/(user)/history')}
           >
+            <Ionicons name="calendar-outline" size={20} color={Colors.primary} />
             <Text style={styles.actionLabel}>Lịch sử đặt bàn</Text>
-            <Text style={styles.actionArrow}>›</Text>
+            <Ionicons name="chevron-forward" size={20} color={Colors.textLight} />
           </TouchableOpacity>
         </Card>
 
@@ -175,13 +175,18 @@ const styles = StyleSheet.create({
   scroll: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
   avatarSection: { alignItems: 'center', paddingVertical: Spacing.xl },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 92,
+    height: 92,
+    borderRadius: 30,
     backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.md,
+    shadowColor: Colors.primaryDark,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    elevation: 4,
   },
   avatarText: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, color: Colors.white },
   userName: { fontSize: FontSize.lg, fontWeight: FontWeight.bold, color: Colors.text },
@@ -190,7 +195,9 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: Colors.primaryLight,
     borderRadius: BorderRadius.full,
   },
   roleText: { fontSize: FontSize.sm, color: Colors.primaryDark, fontWeight: FontWeight.medium },
@@ -225,7 +232,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing.sm,
   },
-  actionLabel: { flex: 1, fontSize: FontSize.base, color: Colors.text },
-  actionArrow: { fontSize: FontSize.lg, color: Colors.textLight },
+  actionLabel: { flex: 1, fontSize: FontSize.base, color: Colors.text, marginLeft: Spacing.sm },
   logoutBtn: {},
 });

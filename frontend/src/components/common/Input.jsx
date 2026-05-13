@@ -86,9 +86,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: Colors.border,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     backgroundColor: Colors.white,
     paddingHorizontal: Spacing.md,
+    minHeight: 52,
   },
   multilineWrapper: {
     alignItems: 'flex-start',
@@ -97,6 +98,11 @@ const styles = StyleSheet.create({
   },
   focused: {
     borderColor: Colors.primary,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 2,
   },
   hasError: {
     borderColor: Colors.error,
@@ -109,7 +115,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: FontSize.base,
     color: Colors.text,
-    height: 48,
+    height: 50,
     paddingVertical: 0,
   },
   multilineInput: {

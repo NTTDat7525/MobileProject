@@ -118,13 +118,15 @@ export default function BookingScreen() {
           showsVerticalScrollIndicator={false}
         >
           <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <Text style={styles.backText}>← Quay lại</Text>
+            <Ionicons name="chevron-back" size={20} color={Colors.primary} />
+            <Text style={styles.backText}>Quay lại</Text>
           </TouchableOpacity>
-          <Text style={styles.pageTitle}>Đặt bàn</Text>
+          <Text style={styles.pageTitle}>Hoàn tất đặt bàn</Text>
+          <Text style={styles.pageSubtitle}>Kiểm tra thông tin và chọn cách thanh toán phù hợp.</Text>
 
           <Card style={styles.tableInfoCard}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons name="restaurant-outline" size={20} color="#333" />
+              <Ionicons name="restaurant-outline" size={22} color={Colors.primary} />
               <Text style={styles.tableInfoTitle}>{tableName}</Text>
             </View>
             <Text style={styles.tableInfoSub}>
@@ -201,7 +203,9 @@ export default function BookingScreen() {
                     styles.radio,
                     form.PaymentMethod === method.value && styles.radioActive,
                   ]}
-                />
+                >
+                  {form.PaymentMethod === method.value ? <View style={styles.radioDot} /> : null}
+                </View>
                 <Text style={styles.paymentLabel}>{method.label}</Text>
               </TouchableOpacity>
             ))}
@@ -224,29 +228,31 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.background },
   flex: { flex: 1 },
   scroll: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
-  backBtn: { marginBottom: Spacing.sm },
+  backBtn: { marginBottom: Spacing.sm, flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start' },
   backText: { fontSize: FontSize.base, color: Colors.primary, fontWeight: FontWeight.medium },
   pageTitle: {
-    fontSize: FontSize.xl,
-    fontWeight: FontWeight.bold,
+    fontSize: FontSize.xxl,
+    fontWeight: FontWeight.heavy,
     color: Colors.text,
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.xs,
   },
+  pageSubtitle: { fontSize: FontSize.sm, color: Colors.textSecondary, lineHeight: 20, marginBottom: Spacing.md },
   tableInfoCard: {
-    backgroundColor: Colors.primaryLight,
-    borderColor: Colors.primary,
+    backgroundColor: Colors.white,
+    borderColor: Colors.primaryLight,
     marginBottom: Spacing.lg,
   },
   tableInfoTitle: {
     fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
-    color: Colors.primaryDark,
+    fontWeight: FontWeight.bold,
+    color: Colors.text,
+    marginLeft: Spacing.sm,
   },
   tableInfoSub: { fontSize: FontSize.sm, color: Colors.primaryDark, marginTop: 4 },
   section: { marginBottom: Spacing.md },
   sectionTitle: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
     color: Colors.text,
     marginBottom: Spacing.sm,
     paddingBottom: Spacing.xs,
@@ -305,8 +311,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.border,
     marginRight: Spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  radioActive: { borderColor: Colors.primary, backgroundColor: Colors.primary },
+  radioActive: { borderColor: Colors.primary, backgroundColor: Colors.white },
+  radioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: Colors.primary },
   paymentLabel: { fontSize: FontSize.base, color: Colors.text },
   submitBtn: { marginTop: Spacing.sm },
 });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -101,9 +101,11 @@ export default function DashboardScreen() {
         </View>
 
         <View style={styles.highlight}>
+          <Ionicons name="restaurant-outline" size={24} color={Colors.white} />
           <Text style={styles.highlightText}>
             {inUse}/{total} bàn đang sử dụng
           </Text>
+          <Text style={styles.highlightSub}>Theo dõi trạng thái vận hành trong ngày</Text>
         </View>
 
         <Text style={styles.section}>Biểu đồ trạng thái</Text>
@@ -151,7 +153,9 @@ export default function DashboardScreen() {
 function Stat({ icon, label, value }) {
   return (
     <View style={styles.card}>
-      <Ionicons name={icon} size={22} color="#333" />
+      <View style={styles.statIcon}>
+        <Ionicons name={icon} size={22} color={Colors.primary} />
+      </View>
       <Text style={styles.value}>{value ?? 0}</Text>
       <Text style={styles.label}>{label}</Text>
     </View>
@@ -161,72 +165,86 @@ function Stat({ icon, label, value }) {
 function Quick({ icon, label, onPress }) {
   return (
     <TouchableOpacity style={styles.quick} onPress={onPress}>
-      <Ionicons name={icon} size={22} />
+      <Ionicons name={icon} size={22} color={Colors.primary} />
       <Text style={styles.quickText}>{label}</Text>
+      <Ionicons name="chevron-forward" size={20} color={Colors.textLight} />
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#f8fafc' },
-  container: { padding: 16 },
+  safe: { flex: 1, backgroundColor: Colors.background },
+  container: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
 
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
+    alignItems: 'center',
   },
 
-  greet: { color: '#888' },
-  name: { fontSize: 20, fontWeight: 'bold' },
+  greet: { color: Colors.textSecondary, fontSize: FontSize.sm },
+  name: { fontSize: FontSize.xxl, fontWeight: FontWeight.heavy, color: Colors.text },
 
   highlight: {
-    backgroundColor: '#111',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 20,
+    backgroundColor: Colors.primary,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.xl,
+    marginBottom: Spacing.lg,
   },
 
-  highlightText: { color: '#fff', fontSize: 16 },
+  highlightText: { color: Colors.white, fontSize: FontSize.lg, fontWeight: FontWeight.bold, marginTop: Spacing.sm },
+  highlightSub: { color: Colors.primaryLight, fontSize: FontSize.sm, marginTop: Spacing.xs },
 
   section: {
-    fontWeight: 'bold',
-    marginBottom: 10,
-    marginTop: 10,
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
+    color: Colors.text,
+    marginBottom: Spacing.sm,
+    marginTop: Spacing.md,
   },
 
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: Spacing.sm,
   },
 
   card: {
     width: '48%',
-    backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 10,
+    backgroundColor: Colors.white,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.lg,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
+  statIcon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.primaryLight },
 
   value: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: FontSize.xl,
+    fontWeight: FontWeight.heavy,
+    color: Colors.text,
+    marginTop: Spacing.xs,
   },
 
-  label: { color: '#666' },
+  label: { color: Colors.textSecondary, fontSize: FontSize.sm },
 
   quick: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
-    padding: 14,
-    borderRadius: 10,
-    marginBottom: 10,
+    backgroundColor: Colors.white,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    marginBottom: Spacing.sm,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
 
   quickText: {
-    marginLeft: 10,
-    fontWeight: '500',
+    flex: 1,
+    marginLeft: Spacing.sm,
+    fontWeight: FontWeight.semibold,
+    color: Colors.text,
   },
 });

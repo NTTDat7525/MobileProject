@@ -5,7 +5,6 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  ActivityIndicator,
   Alert,
   Modal,
 } from 'react-native';
@@ -17,6 +16,8 @@ import {
 } from '@/src/services/booking.service';
 import Badge from '@/src/components/common/Badge';
 import Button from '@/src/components/common/Button';
+import LoadingState from '@/src/components/common/LoadingState';
+import EmptyState from '@/src/components/common/EmptyState';
 import { Colors } from '@/src/constants/colors';
 import { Spacing, BorderRadius } from '@/src/constants/spacing';
 import { FontSize, FontWeight } from '@/src/constants/typography';
@@ -167,18 +168,9 @@ export default function AdminBookingsScreen() {
       />
 
       {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator color={Colors.primary} size="large" />
-          <Text style={styles.loadingText}>Đang tải...</Text>
-        </View>
+        <LoadingState message="Đang tải danh sách đặt bàn..." />
       ) : error ? (
-        <View style={styles.center}>
-          <Text style={styles.errorIcon}>⚠️</Text>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity onPress={loadBookings}>
-            <Text style={styles.retryText}>Thử lại</Text>
-          </TouchableOpacity>
-        </View>
+        <EmptyState tone="error" title="Không tải được đặt bàn" message={error} actionLabel="Thử lại" onAction={loadBookings} />
       ) : (
         <FlatList
           data={filteredBookings}
@@ -188,9 +180,7 @@ export default function AdminBookingsScreen() {
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           ListEmptyComponent={
-            <View style={styles.center}>
-              <Text style={styles.emptyText}>Không có đặt bàn nào</Text>
-            </View>
+            <EmptyState icon="calendar-outline" title="Không có đặt bàn" message="Các đặt bàn mới sẽ xuất hiện tại đây." />
           }
         />
       )}
@@ -300,8 +290,8 @@ const styles = StyleSheet.create({
   },
   
   pageTitle: {
-    fontSize: FontSize.xl,
-    fontWeight: FontWeight.bold,
+    fontSize: FontSize.xxl,
+    fontWeight: FontWeight.heavy,
     color: Colors.text
   },
 
@@ -339,14 +329,13 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: Spacing.lg,
-    gap: Spacing.sm,
+    gap: Spacing.md,
     paddingBottom: Spacing.xxl,
-    height: 650,
   },
   
   bookingRow: {
     backgroundColor: Colors.white,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
