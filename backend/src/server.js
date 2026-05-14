@@ -7,7 +7,6 @@ import authRoute from './routes/authRoute.js';
 import userRoute from './routes/userRoute.js';
 import adminRoute from './routes/adminRoute.js';
 import verificationRoute from './routes/verificationRoute.js';
-import { googleCallback } from './controllers/authController.js';
 import { handleSepayWebhook } from './controllers/paymentController.js';
 import { protectedRoute } from './middlewares/authMiddleware.js';
 import { authorizeRoles } from './middlewares/roleMiddleware.js';
@@ -39,8 +38,6 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
-app.get('/auth/google/callback', googleCallback);
 app.post('/api/payments/sepay/webhook', express.raw({ type: 'application/json' }), handleSepayWebhook);
 
 app.use(express.json());
