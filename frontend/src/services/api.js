@@ -1,7 +1,7 @@
 import Axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const API_BASE_URL = "https://mobileproject-kzdz.onrender.com";
+export const API_BASE_URL = "https://mobileproject-kzdz.onrender.com/api";
 
 const api = Axios.create({
   baseURL: API_BASE_URL,
