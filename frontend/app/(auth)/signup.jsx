@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { signup } from '@/src/services/auth.service';
+import { signinWithGoogle, signup } from '@/src/services/auth.service';
+import useAuthStore from '@/src/store/authStore';
 import Input from '@/src/components/common/Input';
 import Button from '@/src/components/common/Button';
 import { Colors } from '@/src/constants/colors';
@@ -20,6 +21,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function SignupScreen() {
   const router = useRouter();
+  const login = useAuthStore((state) => state.login);
 
   const [form, setForm] = useState({
     username: '',
@@ -211,6 +213,10 @@ const styles = StyleSheet.create({
   },
 
   submitButton: {
+    marginTop: Spacing.sm
+  },
+
+  googleButton: {
     marginTop: Spacing.sm
   },
 

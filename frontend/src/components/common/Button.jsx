@@ -4,11 +4,6 @@ import { Colors } from '../../constants/colors';
 import { Spacing, BorderRadius } from '../../constants/spacing';
 import { FontSize, FontWeight } from '../../constants/typography';
 
-/**
- * Nút bấm dùng chung
- * @param {'primary'|'secondary'|'outline'|'danger'|'ghost'} variant
- * @param {'sm'|'md'|'lg'} size
- */
 export default function Button({
   title,
   onPress,
@@ -64,7 +59,6 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 2,
   },
-  // ─── Variants ───────────────────────────────────
   primary: {
     backgroundColor: Colors.primary,
   },
@@ -82,7 +76,6 @@ const styles = StyleSheet.create({
   ghost: {
     backgroundColor: 'transparent',
   },
-  // ─── Sizes ──────────────────────────────────────
   size_sm: {
     paddingVertical: Spacing.xs,
     paddingHorizontal: Spacing.md,
@@ -98,7 +91,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     minHeight: 56,
   },
-  // ─── Text ────────────────────────────────────────
   text: {
     fontSize: FontSize.base,
     fontWeight: FontWeight.semibold,
@@ -109,6 +101,5 @@ const styles = StyleSheet.create({
   text_danger: { color: Colors.white },
   text_ghost: { color: Colors.primary },
   icon: { marginRight: Spacing.xs },
-  // ─── State ───────────────────────────────────────
   disabled: { opacity: 0.45 },
 });

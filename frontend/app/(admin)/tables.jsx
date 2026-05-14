@@ -101,7 +101,7 @@ export default function TablesScreen() {
       location: table.location,
       price: String(table.price),
       status: table.status,
-      image: table.image ? { uri: `http://10.94.31.74:5001${table.image}` } : null,
+      image: table.image ? { uri: `http://192.168.1.8:5001${table.image}` } : null,
     });
     setFormErrors({});
     setModalVisible(true);

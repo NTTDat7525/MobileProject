@@ -31,15 +31,18 @@ const sequelize = new Sequelize(
 export const connectDB = async () => {
     try {
         await sequelize.authenticate();
-        console.log('Connected to MySQL successfully!');
+        console.log('Kết nối MySQL thành công!');
         
         // Đồng bộ hóa tất cả models
-        await sequelize.sync();
-        console.log('Database synchronized!');
+        await sequelize.sync({
+            force: process.env.DB_SYNC === 'true',
+            alter: process.env.DB_SYNC_ALTER === 'true'
+        });
+        console.log('Đồng bộ cơ sở dữ liệu thành công!');
         
         return sequelize;
     } catch (error) {
-        console.log('Error connecting to MySQL:', error);
+        console.log('Lỗi kết nối MySQL:', error);
         process.exit(1);
     }
 };

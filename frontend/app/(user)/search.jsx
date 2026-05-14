@@ -74,7 +74,7 @@ export default function SearchScreen() {
     >
       <Card style={[styles.tableCard, item.status !== 'Có sẵn' && styles.unavailable]}>
         {item.image ? (
-          <Image source={{ uri: `http://10.94.31.74:5001${item.image}` }} style={styles.tableImage} />
+          <Image source={{ uri: `http://192.168.1.8:5001${item.image}` }} style={styles.tableImage} />
         ) : (
           <View style={styles.imagePlaceholder}>
             <Text style={styles.imagePlaceholderIcon}></Text>

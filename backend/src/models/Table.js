@@ -8,13 +8,13 @@ const Table = sequelize.define('Table', {
         primaryKey: true,
         allowNull: false
     },
-    
+
     tableName: {
         type: DataTypes.STRING(50),
         allowNull: false,
         unique: true
     },
-//số lượng khách tối đa
+
     capacity: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -29,7 +29,7 @@ const Table = sequelize.define('Table', {
         allowNull: false
     },
 
-    image :{
+    image: {
         type: DataTypes.STRING(255),
         defaultValue: null
     },
@@ -39,11 +39,11 @@ const Table = sequelize.define('Table', {
         defaultValue: 'Có sẵn'
     },
 
-    price :{
+    price: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
         defaultValue: 0.00
-     },
+    },
 
     createdAt: {
         type: DataTypes.DATE,

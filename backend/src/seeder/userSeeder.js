@@ -2,30 +2,32 @@ import bcrypt from 'bcrypt';
 import User from '../models/User.js';
 
 const userSeeder = async () => {
-  const existing = await User.findOne({
-    where: { email: 'admin01@gmail.com' }
-  });
+  const users = [
+    {
+      username: 'user01',
+      email: 'user01@gmail.com',
+      role: 'user'
+    },
+    {
+      username: 'admin01',
+      email: 'admin01@gmail.com',
+      role: 'admin'
+    }
+  ];
 
-  if (!existing) {
-    const hashedPassword = await bcrypt.hash('123456', 10);
+  const hashedPassword = await bcrypt.hash(process.env.SEED_USER_PASSWORD || '123456', 10);
 
-    await User.bulkCreate([
-      {
-        username: 'user01',
-        email: 'user01@gmail.com',
+  for (const user of users) {
+    await User.findOrCreate({
+      where: { email: user.email },
+      defaults: {
+        ...user,
         hashPassword: hashedPassword,
-        role: 'user'
-      },
-      {
-        username: 'admin01',
-        email: 'admin01@gmail.com',
-        hashPassword: hashedPassword,
-        role: 'admin'
       }
-    ]);
-
-    console.log('Seed user thành công');
+    });
   }
+
+  console.log('Seed người dùng thành công');
 };
 
 export default userSeeder;

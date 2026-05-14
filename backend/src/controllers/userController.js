@@ -1,18 +1,19 @@
+import { Op } from 'sequelize';
 import User from '../models/User.js';
 import Booking from '../models/Booking.js';
 import Table from '../models/Table.js';
-import { Op } from 'sequelize';
 import { sendBookingConfirmationEmail } from '../services/emailService.js';
+
+const ACTIVE_BOOKING_STATUSES = ['đang chờ', 'đã xác nhận', 'đã check-in'];
 
 export const authMe = async (req, res) => {
   try {
-    const user = req.user;
-    if (!user) {
+    if (!req.user) {
       return res.status(401).json({ message: 'Chưa đăng nhập' });
     }
-    return res.json(user);
+    return res.json(req.user);
   } catch (error) {
-    return res.status(500).json({ message: 'Lỗi server', error: error.message });
+    return res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
   }
 };
 
@@ -24,23 +25,22 @@ export const updateProfile = async (req, res) => {
     const user = await User.findByPk(userId, { attributes: { exclude: ['hashPassword'] } });
     return res.json({ message: 'Cập nhật hồ sơ thành công', user });
   } catch (error) {
-    console.error('Error in updateProfile:', error);
-    return res.status(500).json({ message: 'Lỗi server' });
+    console.error('Lỗi cập nhật hồ sơ:', error);
+    return res.status(500).json({ message: 'Lỗi máy chủ' });
   }
 };
 
 export const getUserBookings = async (req, res) => {
   try {
-    const userId = req.user.id;
     const bookings = await Booking.findAll({
-      where: { userId },
+      where: { userId: req.user.id },
       include: [{ model: Table, as: 'Table' }],
       order: [['createdAt', 'DESC']],
     });
     return res.json({ bookings });
   } catch (error) {
-    console.error('Error in getUserBookings:', error);
-    return res.status(500).json({ message: 'Lỗi server' });
+    console.error('Lỗi lấy lịch sử đặt bàn:', error);
+    return res.status(500).json({ message: 'Lỗi máy chủ' });
   }
 };
 
@@ -53,18 +53,28 @@ export const createBooking = async (req, res) => {
       return res.status(400).json({ message: 'Thiếu thông tin đặt bàn' });
     }
 
+    const bookingTime = new Date(time);
+    if (Number.isNaN(bookingTime.getTime()) || bookingTime <= new Date()) {
+      return res.status(400).json({ message: 'Thời gian đặt bàn không hợp lệ hoặc đã qua' });
+    }
+
     const table = await Table.findByPk(tableId);
     if (!table) {
       return res.status(404).json({ message: 'Bàn không tồn tại' });
     }
+
     if (table.status !== 'Có sẵn') {
       return res.status(400).json({ message: 'Bàn này hiện không có sẵn' });
+    }
+
+    if (Number(numberOfGuests) > table.capacity) {
+      return res.status(400).json({ message: `Bàn chỉ chứa tối đa ${table.capacity} khách` });
     }
 
     const booking = await Booking.create({
       userId,
       tableId,
-      time: new Date(time),
+      time: bookingTime,
       numberOfGuests,
       guestEmail,
       guestPhone,
@@ -72,6 +82,7 @@ export const createBooking = async (req, res) => {
       PaymentMethod: PaymentMethod || 'tiền mặt',
       totalPrice: table.price,
       status: 'đang chờ',
+      paymentStatus: 'chưa thanh toán',
     });
 
     await table.update({ status: 'Đã đặt' });
@@ -80,27 +91,23 @@ export const createBooking = async (req, res) => {
       include: [{ model: Table, as: 'Table' }],
     });
 
-    // Gửi email xác nhận đặt bàn thành công
     try {
       await sendBookingConfirmationEmail(guestEmail, bookingWithTable);
     } catch (emailError) {
-      console.error('Lỗi gửi email xác nhận:', emailError);
-      // Không trả lỗi cho client, vì đặt bàn đã thành công
+      console.error('Lỗi gửi email xác nhận đặt bàn:', emailError.message);
     }
 
     return res.status(201).json({ message: 'Đặt bàn thành công', booking: bookingWithTable });
   } catch (error) {
-    console.error('Error in createBooking:', error);
-    return res.status(500).json({ message: 'Lỗi server' });
+    console.error('Lỗi tạo đặt bàn:', error);
+    return res.status(500).json({ message: 'Lỗi máy chủ' });
   }
 };
 
 export const getBookingById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const userId = req.user.id;
     const booking = await Booking.findOne({
-      where: { id, userId },
+      where: { id: req.params.id, userId: req.user.id },
       include: [{ model: Table, as: 'Table' }],
     });
     if (!booking) {
@@ -108,18 +115,14 @@ export const getBookingById = async (req, res) => {
     }
     return res.json({ booking });
   } catch (error) {
-    console.error('Error in getBookingById:', error);
-    return res.status(500).json({ message: 'Lỗi server' });
+    console.error('Lỗi lấy chi tiết đặt bàn:', error);
+    return res.status(500).json({ message: 'Lỗi máy chủ' });
   }
 };
 
 export const updateBooking = async (req, res) => {
   try {
-    const { id } = req.params;
-    const userId = req.user.id;
-    const { time, numberOfGuests, guestEmail, guestPhone, specialRequests, PaymentMethod } = req.body;
-
-    const booking = await Booking.findOne({ where: { id, userId } });
+    const booking = await Booking.findOne({ where: { id: req.params.id, userId: req.user.id } });
     if (!booking) {
       return res.status(404).json({ message: 'Không tìm thấy đặt bàn' });
     }
@@ -127,28 +130,45 @@ export const updateBooking = async (req, res) => {
       return res.status(400).json({ message: 'Chỉ có thể chỉnh sửa đặt bàn đang chờ xác nhận' });
     }
 
-    await booking.update({
-      ...(time && { time: new Date(time) }),
-      ...(numberOfGuests && { numberOfGuests }),
-      ...(guestEmail && { guestEmail }),
-      ...(guestPhone && { guestPhone }),
-      ...(specialRequests !== undefined && { specialRequests }),
-      ...(PaymentMethod && { PaymentMethod }),
-    });
+    const { time, numberOfGuests, guestEmail, guestPhone, specialRequests, PaymentMethod } = req.body;
+    const nextData = {};
 
-    return res.json({ message: 'Cập nhật đặt bàn thành công', booking });
+    if (time) {
+      const bookingTime = new Date(time);
+      if (Number.isNaN(bookingTime.getTime()) || bookingTime <= new Date()) {
+        return res.status(400).json({ message: 'Thời gian đặt bàn không hợp lệ hoặc đã qua' });
+      }
+      nextData.time = bookingTime;
+    }
+
+    if (numberOfGuests) {
+      const table = await Table.findByPk(booking.tableId);
+      if (table && Number(numberOfGuests) > table.capacity) {
+        return res.status(400).json({ message: `Bàn chỉ chứa tối đa ${table.capacity} khách` });
+      }
+      nextData.numberOfGuests = numberOfGuests;
+    }
+
+    if (guestEmail) nextData.guestEmail = guestEmail;
+    if (guestPhone) nextData.guestPhone = guestPhone;
+    if (specialRequests !== undefined) nextData.specialRequests = specialRequests;
+    if (PaymentMethod) nextData.PaymentMethod = PaymentMethod;
+
+    await booking.update(nextData);
+
+    const updated = await Booking.findByPk(booking.id, {
+      include: [{ model: Table, as: 'Table' }],
+    });
+    return res.json({ message: 'Cập nhật đặt bàn thành công', booking: updated });
   } catch (error) {
-    console.error('Error in updateBooking:', error);
-    return res.status(500).json({ message: 'Lỗi server' });
+    console.error('Lỗi cập nhật đặt bàn:', error);
+    return res.status(500).json({ message: 'Lỗi máy chủ' });
   }
 };
 
 export const cancelBooking = async (req, res) => {
   try {
-    const { id } = req.params;
-    const userId = req.user.id;
-
-    const booking = await Booking.findOne({ where: { id, userId } });
+    const booking = await Booking.findOne({ where: { id: req.params.id, userId: req.user.id } });
     if (!booking) {
       return res.status(404).json({ message: 'Không tìm thấy đặt bàn' });
     }
@@ -157,16 +177,32 @@ export const cancelBooking = async (req, res) => {
     }
 
     await booking.update({ status: 'đã hủy' });
-
-    const table = await Table.findByPk(booking.tableId);
-    if (table && table.status === 'Đã đặt') {
-      await table.update({ status: 'Có sẵn' });
-    }
+    await releaseTableIfNoActiveBookings(booking.tableId);
 
     return res.json({ message: 'Hủy đặt bàn thành công' });
   } catch (error) {
-    console.error('Error in cancelBooking:', error);
-    return res.status(500).json({ message: 'Lỗi server' });
+    console.error('Lỗi hủy đặt bàn:', error);
+    return res.status(500).json({ message: 'Lỗi máy chủ' });
+  }
+};
+
+export const updatePaymentStatus = async (req, res) => {
+  try {
+    const booking = await Booking.findOne({ where: { id: req.params.id, userId: req.user.id } });
+    if (!booking) {
+      return res.status(404).json({ message: 'Không tìm thấy đặt bàn' });
+    }
+
+    const { paymentStatus } = req.body;
+    if (!['chưa thanh toán', 'đã thanh toán'].includes(paymentStatus)) {
+      return res.status(400).json({ message: 'Trạng thái thanh toán không hợp lệ' });
+    }
+
+    await booking.update({ paymentStatus });
+    return res.json({ message: 'Cập nhật thanh toán thành công', booking });
+  } catch (error) {
+    console.error('Lỗi cập nhật thanh toán:', error);
+    return res.status(500).json({ message: 'Lỗi máy chủ' });
   }
 };
 
@@ -180,21 +216,36 @@ export const getUserTables = async (req, res) => {
     const tables = await Table.findAll({ where, order: [['tableName', 'ASC']] });
     return res.json({ tables });
   } catch (error) {
-    console.error('Error in getUserTables:', error);
-    return res.status(500).json({ message: 'Lỗi server' });
+    console.error('Lỗi lấy danh sách bàn:', error);
+    return res.status(500).json({ message: 'Lỗi máy chủ' });
   }
 };
 
 export const getTableById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const table = await Table.findByPk(id);
+    const table = await Table.findByPk(req.params.id);
     if (!table) {
       return res.status(404).json({ message: 'Không tìm thấy bàn' });
     }
     return res.json({ table });
   } catch (error) {
-    console.error('Error in getTableById:', error);
-    return res.status(500).json({ message: 'Lỗi server' });
+    console.error('Lỗi lấy chi tiết bàn:', error);
+    return res.status(500).json({ message: 'Lỗi máy chủ' });
   }
 };
+
+async function releaseTableIfNoActiveBookings(tableId) {
+  const activeBookings = await Booking.count({
+    where: {
+      tableId,
+      status: { [Op.in]: ACTIVE_BOOKING_STATUSES },
+    },
+  });
+
+  if (activeBookings === 0) {
+    const table = await Table.findByPk(tableId);
+    if (table) {
+      await table.update({ status: 'Có sẵn' });
+    }
+  }
+}

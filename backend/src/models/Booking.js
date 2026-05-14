@@ -58,7 +58,7 @@ const Booking = sequelize.define('Booking', {
 
     specialRequests: {
         type: DataTypes.STRING(500),
-        defaultValue: ""
+        defaultValue: ''
     },
 
     status: {
@@ -74,8 +74,8 @@ const Booking = sequelize.define('Booking', {
         }
     },
 
-    PaymentMethod:{
-        type: DataTypes.ENUM('tiền mặt','chuyển khoản ngân hàng'),
+    PaymentMethod: {
+        type: DataTypes.ENUM('tiền mặt', 'chuyển khoản ngân hàng'),
         defaultValue: 'tiền mặt'
     },
 

@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { signin } from '@/src/services/auth.service';
+import { signin, signinWithGoogle } from '@/src/services/auth.service';
 import useAuthStore from '@/src/store/authStore';
 import Input from '@/src/components/common/Input';
 import Button from '@/src/components/common/Button';
@@ -197,6 +197,9 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   submitButton: {
+    marginTop: Spacing.sm,
+  },
+  googleButton: {
     marginTop: Spacing.sm,
   },
   footer: {

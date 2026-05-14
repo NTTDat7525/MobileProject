@@ -1,13 +1,17 @@
+import fs from 'fs';
 import multer from 'multer';
 import path from 'path';
 
+const uploadDir = path.join(process.cwd(), 'uploads', 'tables');
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/tables');
+    fs.mkdirSync(uploadDir, { recursive: true });
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const uniqueName = Date.now() + '-' + file.originalname;
-    cb(null, uniqueName);
+    const safeName = file.originalname.replace(/[^\w.-]/g, '_');
+    cb(null, `${Date.now()}-${safeName}`);
   },
 });
 

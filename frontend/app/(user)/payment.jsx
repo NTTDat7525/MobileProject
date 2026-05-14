@@ -5,10 +5,11 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { getBookingById } from '@/src/services/booking.service';
+import { getBookingById, getBookingPaymentInfo } from '@/src/services/booking.service';
 import Badge from '@/src/components/common/Badge';
 import Card from '@/src/components/common/Card';
 import Button from '@/src/components/common/Button';
@@ -18,19 +19,11 @@ import { Colors } from '@/src/constants/colors';
 import { Spacing, BorderRadius } from '@/src/constants/spacing';
 import { FontSize, FontWeight } from '@/src/constants/typography';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import QRCode from 'react-native-qrcode-svg';
-
-const BANK_INFO = {
-  bankName: 'VNPay',
-  accountNumber: '1234567890',
-  accountName: 'Golden Spoon Restaurant',
-  branch: 'Chi nhánh Hà Nội',
-};
-
 export default function PaymentScreen() {
   const router = useRouter();
   const { bookingId } = useLocalSearchParams();
   const [booking, setBooking] = useState(null);
+  const [payment, setPayment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -38,11 +31,36 @@ export default function PaymentScreen() {
     if (bookingId) loadBooking();
   }, [bookingId]);
 
+  useEffect(() => {
+    if (!bookingId || !booking || booking.paymentStatus === 'đã thanh toán') return;
+
+    const intervalId = setInterval(async () => {
+      try {
+        const res = await getBookingById(bookingId);
+        const nextBooking = res.data?.booking ?? res.data;
+        setBooking(nextBooking);
+        if (nextBooking?.paymentStatus === 'đã thanh toán') {
+          router.replace({ pathname: '/(user)/confirmation', params: { bookingId } });
+        }
+      } catch {
+        // Giữ nguyên màn hình nếu polling tạm thời lỗi mạng.
+      }
+    }, 3000);
+
+    return () => clearInterval(intervalId);
+  }, [bookingId, booking?.paymentStatus]);
+
   const loadBooking = async () => {
     setLoading(true);
     try {
       const res = await getBookingById(bookingId);
-      setBooking(res.data?.booking ?? res.data);
+      const nextBooking = res.data?.booking ?? res.data;
+      setBooking(nextBooking);
+
+      if (nextBooking?.PaymentMethod === 'chuyển khoản ngân hàng') {
+        const paymentRes = await getBookingPaymentInfo(bookingId);
+        setPayment(paymentRes.data?.payment ?? null);
+      }
     } catch {
       setError('Không thể tải thông tin thanh toán.');
     } finally {
@@ -109,23 +127,23 @@ export default function PaymentScreen() {
             <Text style={styles.bankTitle}>Thông tin chuyển khoản</Text>
 
             <View style={styles.qrPlaceholder}>
-              <QRCode
-                value={`BANK:${BANK_INFO.accountNumber}|AMOUNT:${booking.totalPrice}|CONTENT:DAT BAN ${bookingId}`}
-                size={180}
-              />
+              {payment?.qrImageUrl ? (
+                <Image source={{ uri: payment.qrImageUrl }} style={styles.qrImage} resizeMode="contain" />
+              ) : (
+                <Ionicons name="qr-code-outline" size={96} color={Colors.textLight} />
+              )}
               <Text style={styles.qrText}>Quét mã để thanh toán</Text>
               <Text style={styles.qrAmount}>{formatPrice(booking.totalPrice)}</Text>
             </View>
 
             <View style={styles.bankDivider} />
 
-            <BankRow label="Ngân hàng" value={BANK_INFO.bankName} />
-            <BankRow label="Số tài khoản" value={BANK_INFO.accountNumber} copyable />
-            <BankRow label="Chủ tài khoản" value={BANK_INFO.accountName} />
-            <BankRow label="Chi nhánh" value={BANK_INFO.branch} />
+            <BankRow label="Ngân hàng" value={payment?.bankCode || '-'} />
+            <BankRow label="Số tài khoản" value={payment?.accountNo || '-'} copyable />
+            <BankRow label="Chủ tài khoản" value={payment?.accountName || '-'} />
             <BankRow
               label="Nội dung CK"
-              value={`DAT BAN ${bookingId?.slice(0, 8).toUpperCase()}`}
+              value={payment?.addInfo || '-'}
               copyable
             />
             <BankRow label="Số tiền" value={formatPrice(booking.totalPrice)} highlight />
@@ -133,6 +151,9 @@ export default function PaymentScreen() {
             <View style={styles.noteBox}>
               <Text style={styles.noteText}>
                 Vui lòng ghi đúng nội dung chuyển khoản để xác nhận tự động.
+              </Text>
+              <Text style={styles.noteText}>
+                Trạng thái sẽ tự cập nhật sau khi SePay gửi webhook thành công.
               </Text>
             </View>
           </Card>
@@ -235,6 +256,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   qrIcon: { fontSize: 56, marginBottom: Spacing.sm },
+  qrImage: { width: 220, height: 220 },
   qrText: { fontSize: FontSize.sm, color: Colors.textSecondary, marginBottom: 4, marginTop: Spacing.sm },
   qrAmount: { fontSize: FontSize.lg, fontWeight: FontWeight.bold, color: Colors.primary },
   bankDivider: { height: 1, backgroundColor: Colors.border, marginBottom: Spacing.md },

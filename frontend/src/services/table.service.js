@@ -15,7 +15,9 @@ export const addTable = (data) =>
   });
 
 export const updateTable = (id, data) =>
-  api.put(`/admin/tables/${id}`, data);
+  api.put(`/admin/tables/${id}`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 
 export const deleteTable = (id) =>
   api.delete(`/admin/tables/${id}`);
