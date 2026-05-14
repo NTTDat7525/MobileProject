@@ -20,13 +20,13 @@ const Session = sequelize.define('Session', {
     },
 
     refreshToken: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING(512),
         allowNull: false,
         unique: true
     },
 
     accessToken: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING(512),
         defaultValue: null
     },
 
