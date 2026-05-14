@@ -49,8 +49,8 @@ export const handleSepayWebhook = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Không tìm thấy đặt bàn phù hợp' });
     }
 
-    const receivedAmount = Number(payload.amount || 0);
-    const expectedAmount = Number(booking.totalPrice || 0);
+    const receivedAmount = Number(payload.transferAmount ?? payload.amount ?? 0);
+    const expectedAmount = Math.round(Number(booking.totalPrice || 0));
     if (receivedAmount < expectedAmount) {
       return res.status(400).json({ success: false, message: 'Số tiền thanh toán chưa đủ' });
     }

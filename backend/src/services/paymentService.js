@@ -40,8 +40,8 @@ export const buildVietQrInfo = (booking) => {
 };
 
 export const findBookingFromSepayPayload = async (payload) => {
-  const content = String(payload.content || payload.description || payload.payment_code || '');
-  const paymentCode = String(payload.payment_code || '');
+  const content = String(payload.content || payload.description ||'');
+  const paymentCode = String(payload.code || payload.payment_code || payload.subAccount || '');
   const normalizedContent = `${content} ${paymentCode}`.toUpperCase();
 
   const bookings = await Booking.findAll({
