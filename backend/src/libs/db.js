@@ -32,14 +32,15 @@ export const connectDB = async () => {
     try {
         await sequelize.authenticate();
         console.log('Kết nối MySQL thành công!');
-        
-        // Đồng bộ hóa tất cả models
-        await sequelize.sync({
-            force: process.env.DB_SYNC === 'true',
-            alter: process.env.DB_SYNC_ALTER === 'true'
-        });
-        console.log('Đồng bộ cơ sở dữ liệu thành công!');
-        
+
+        if (process.env.DB_SYNC === 'true') {
+            await sequelize.sync({
+                alter: process.env.DB_SYNC_ALTER === 'true'
+            });
+
+            console.log('Đồng bộ cơ sở dữ liệu thành công!');
+        }
+
         return sequelize;
     } catch (error) {
         console.log('Lỗi kết nối MySQL:', error);
