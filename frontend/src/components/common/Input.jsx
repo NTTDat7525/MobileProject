@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing, BorderRadius } from '../../constants/spacing';
 import { FontSize, FontWeight } from '../../constants/typography';
 import {Ionicons} from '@expo/vector-icons';
 
-export default function Input({
+function Input({
   label,
   value,
   onChangeText,
@@ -24,6 +24,9 @@ export default function Input({
   const [showPassword, setShowPassword] = useState(false);
 
   const isSecure = secureTextEntry && !showPassword;
+  const handleFocus = useCallback(() => setIsFocused(true), []);
+  const handleBlur = useCallback(() => setIsFocused(false), []);
+  const togglePassword = useCallback(() => setShowPassword((value) => !value), []);
 
   return (
     <View style={[styles.container, style]}>
@@ -49,15 +52,17 @@ export default function Input({
           numberOfLines={multiline ? numberOfLines : undefined}
           editable={editable}
           autoCapitalize={autoCapitalize}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          blurOnSubmit={multiline ? false : undefined}
           textAlignVertical={multiline ? 'top' : 'center'}
         />
         {secureTextEntry && (
           <TouchableOpacity
-            onPress={() => setShowPassword(!showPassword)}
+            onPress={togglePassword}
             style={styles.eyeButton}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            activeOpacity={0.7}
           >
             <Ionicons
               name={showPassword ? 'eye-off' : 'eye'}
@@ -134,3 +139,5 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xs,
   },
 });
+
+export default memo(Input);

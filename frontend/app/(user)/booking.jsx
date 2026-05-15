@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { createBooking } from '@/src/services/booking.service';
+import useAuthStore from '@/src/store/authStore';
 import Input from '@/src/components/common/Input';
 import Button from '@/src/components/common/Button';
 import Card from '@/src/components/common/Card';
@@ -29,17 +30,30 @@ const PAYMENT_METHODS = [
 export default function BookingScreen() {
   const router = useRouter();
   const { tableId, tableName, price, capacity } = useLocalSearchParams();
+  const user = useAuthStore((state) => state.user);
+  const initialContact = useMemo(() => ({
+    guestEmail: user?.email ?? '',
+    guestPhone: user?.phone ?? '',
+  }), [user?.email, user?.phone]);
 
   const [form, setForm] = useState({
     time: '',
     numberOfGuests: '1',
-    guestEmail: '',
-    guestPhone: '',
+    guestEmail: initialContact.guestEmail,
+    guestPhone: initialContact.guestPhone,
     specialRequests: '',
     PaymentMethod: 'tiền mặt',
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    setForm((prev) => ({
+      ...prev,
+      guestEmail: prev.guestEmail || initialContact.guestEmail,
+      guestPhone: prev.guestPhone || initialContact.guestPhone,
+    }));
+  }, [initialContact]);
 
   const setField = (field) => (value) => {
     setForm((prev) => ({ ...prev, [field]: value }));

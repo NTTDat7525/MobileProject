@@ -26,6 +26,19 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 const BOOKING_STATUSES = ['đang chờ', 'đã xác nhận', 'đã check-in', 'hoàn thành', 'đã hủy'];
 const FILTER_OPTIONS = ['Tất cả', ...BOOKING_STATUSES];
 
+const normalizeBooking = (booking) => {
+  const table = booking.Table ?? booking.table ?? {};
+  const user = booking.User ?? booking.user ?? {};
+  return {
+    ...booking,
+    displayTable: table.tableName ?? booking.tableName ?? booking.tableId ?? 'Bàn',
+    displayCustomer: user.username ?? booking.guestName ?? booking.guestEmail ?? booking.guestPhone ?? 'Khách hàng',
+    displayContact: booking.guestEmail || booking.guestPhone || user.email || user.phone || '–',
+    displayPaymentStatus: booking.paymentStatus ?? 'chưa thanh toán',
+    displayTotalPrice: Number(booking.totalPrice || 0),
+  };
+};
+
 export default function AdminBookingsScreen() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +56,11 @@ export default function AdminBookingsScreen() {
     try {
       const res = await getAllBookings();
       const data = res.data?.bookings ?? res.data ?? [];
-      setBookings([...data].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+      setBookings(
+        [...data]
+          .map(normalizeBooking)
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      );
     } catch (err) {
       if (err.response?.status === 404) {
         setError('Endpoint GET /admin/bookings chưa được triển khai trên backend.');
@@ -117,10 +134,11 @@ export default function AdminBookingsScreen() {
     <TouchableOpacity style={styles.bookingRow} onPress={() => openActions(item)} activeOpacity={0.8}>
       <View style={styles.bookingHeader}>
         <View style={styles.bookingMeta}>
-          <Text style={styles.tableName}>{item.Table?.tableName ?? 'Bàn'}</Text>
+          <Text style={styles.tableName}>{item.displayTable}</Text>
           <Text style={styles.userName}>
-            Khách hàng: {item.User?.username ?? item.guestEmail ?? '–'}
+            Khách hàng: {item.displayCustomer}
           </Text>
+          <Text style={styles.contactText}>{item.displayContact}</Text>
         </View>
         <Badge label={item.status} />
       </View>
@@ -132,8 +150,8 @@ export default function AdminBookingsScreen() {
       </View>
 
       <View style={styles.bookingFooter}>
-        <Text style={styles.priceText}>Tổng tiền: {formatPrice(item.totalPrice)}</Text>
-        <Badge label={item.paymentStatus} />
+        <Text style={styles.priceText}>Tổng tiền: {formatPrice(item.displayTotalPrice)}</Text>
+        <Badge label={item.displayPaymentStatus} />
       </View>
 
       <Text style={styles.tapHint}>Nhấn để xử lý →</Text>
@@ -200,14 +218,14 @@ export default function AdminBookingsScreen() {
                 <View style={styles.modalRow}>
                   <Ionicons name="restaurant-outline" size={18} color={Colors.primary} />
                   <Text style={styles.modalTableName}>
-                    {selectedBooking.Table?.tableName ?? 'Bàn'}
+                    {selectedBooking.displayTable}
                   </Text>
                 </View>
 
                 <View style={styles.modalRow}>
                   <Ionicons name="person-outline" size={18} color={Colors.primary} />
                   <Text style={styles.modalDetail}>
-                    {selectedBooking.User?.username ?? selectedBooking.guestEmail}
+                    {selectedBooking.displayCustomer} - {selectedBooking.displayContact}
                   </Text>
                 </View>
 
@@ -359,6 +377,7 @@ const styles = StyleSheet.create({
 
   tableName: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: Colors.text },
   userName: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 2 },
+  contactText: { fontSize: FontSize.xs, color: Colors.textLight, marginTop: 2 },
   bookingDetails: { flexDirection: 'row', gap: Spacing.md, marginBottom: Spacing.sm },
   detailText: { fontSize: FontSize.sm, color: Colors.textSecondary },
   bookingFooter: {

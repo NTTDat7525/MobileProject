@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import bcrypt from 'bcrypt';
 import User from '../models/User.js';
 import Booking from '../models/Booking.js';
 import Table from '../models/Table.js';
@@ -88,7 +89,10 @@ export const createBooking = async (req, res) => {
     await table.update({ status: 'Đã đặt' });
 
     const bookingWithTable = await Booking.findByPk(booking.id, {
-      include: [{ model: Table, as: 'Table' }],
+      include: [
+        { model: Table, as: 'Table' },
+        { model: User, as: 'User', attributes: { exclude: ['hashPassword'] } },
+      ],
     });
 
     try {

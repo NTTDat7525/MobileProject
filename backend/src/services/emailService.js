@@ -22,7 +22,10 @@ const canSendMail = () =>
 
 const sendMail = async (mailOptions) => {
     if (!canSendMail()) {
-        console.warn('Chưa cấu hình email, bỏ qua gửi email.');
+        const missing = ['MAIL_HOST', 'MAIL_USERNAME', 'MAIL_PASSWORD']
+            .filter((key) => !process.env[key])
+            .join(', ');
+        console.warn(`Chưa cấu hình email, bỏ qua gửi email. Thiếu biến: ${missing}`);
         return null;
     }
 
@@ -53,6 +56,9 @@ export const sendVerificationEmail = async (email, otp) => {
 };
 
 export const sendBookingConfirmationEmail = async (email, booking) => {
+    const customerName = booking.User?.username || booking.guestName || booking.guestEmail || 'Quý khách';
+    const tableLabel = booking.Table?.tableName || booking.tableName || 'N/A';
+
     const formatDate = (dateStr) => new Date(dateStr).toLocaleString('vi-VN', {
         weekday: 'long',
         day: '2-digit',
@@ -71,12 +77,13 @@ export const sendBookingConfirmationEmail = async (email, booking) => {
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <h2 style="color: #28a745;">Đặt bàn thành công!</h2>
-                <p>Chào ${booking.guestEmail},</p>
+                <p>Chào ${customerName},</p>
                 <p>Cảm ơn bạn đã đặt bàn tại Golden Spoons. Dưới đây là chi tiết đặt bàn:</p>
                 <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
                     <h3 style="margin-top: 0; color: #333;">Chi tiết đặt bàn</h3>
                     <p><strong>Mã đặt bàn:</strong> #${booking.id.slice(0, 8)}</p>
-                    <p><strong>Bàn:</strong> ${booking.Table?.tableName || 'N/A'}</p>
+                    <p><strong>Khách hàng:</strong> ${customerName}</p>
+                    <p><strong>Bàn:</strong> ${tableLabel}</p>
                     <p><strong>Vị trí:</strong> ${booking.Table?.location || 'N/A'}</p>
                     <p><strong>Thời gian:</strong> ${formatDate(booking.time)}</p>
                     <p><strong>Số khách:</strong> ${booking.numberOfGuests} khách</p>

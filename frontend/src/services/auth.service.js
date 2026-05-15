@@ -15,3 +15,4 @@ export const getMe = () =>
 export const updateProfile = (data) =>
   api.put('/users/profile', data);
 
+
