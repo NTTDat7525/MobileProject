@@ -10,6 +10,7 @@ export default function Button({
   variant = 'primary',
   size = 'md',
   loading = false,
+  testID,
   disabled = false,
   style,
   textStyle,
@@ -26,6 +27,7 @@ export default function Button({
         isDisabled && styles.disabled,
         style,
       ]}
+      testID={testID}
       onPress={onPress}
       disabled={isDisabled}
       activeOpacity={0.75}

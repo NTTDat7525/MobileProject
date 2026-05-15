@@ -114,6 +114,7 @@ export default function SigninScreen() {
               title="Đăng nhập"
               onPress={handleSignin}
               loading={loading}
+              testID="signin-button"
               style={styles.submitButton}
               size="lg"
             />
