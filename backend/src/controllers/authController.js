@@ -20,11 +20,30 @@ export const signUp = async (req, res) => {
         const { username, password, email, role } = req.body;
 
         if (!username || !password || !email) {
-            return res.status(400).json({ message: 'Vui lòng nhập đầy đủ tên đăng nhập, email và mật khẩu' });
+            return res.status(400).json({
+                message: 'Vui lòng nhập đầy đủ tên đăng nhập, email và mật khẩu'
+            });
+        }
+
+        const usernameRegex = /^\S+$/;
+        const passwordRegex = /^\S+$/;
+
+        if (!usernameRegex.test(username)) {
+            return res.status(400).json({
+                message: 'Tên đăng nhập không được chứa khoảng trắng'
+            });
+        }
+
+        if (!passwordRegex.test(password)) {
+            return res.status(400).json({
+                message: 'Mật khẩu không được chứa khoảng trắng'
+            });
         }
 
         if (String(password).length < 6) {
-            return res.status(400).json({ message: 'Mật khẩu phải có ít nhất 6 ký tự' });
+            return res.status(400).json({
+                message: 'Mật khẩu phải có ít nhất 6 ký tự'
+            });
         }
 
         const normalizedUsername = String(username).trim().toLowerCase();
