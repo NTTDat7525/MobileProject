@@ -46,8 +46,8 @@ export const signUp = async (req, res) => {
             });
         }
 
-        const normalizedUsername = String(username).trim().toLowerCase();
-        const normalizedEmail = String(email).trim().toLowerCase();
+        const normalizedUsername = String(username).trim();
+        const normalizedEmail = String(email).trim();
 
         const duplicate = await User.findOne({ where: { username: normalizedUsername } });
         if (duplicate) {
